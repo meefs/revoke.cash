@@ -32,7 +32,7 @@ const PermitsTable = () => {
 
   const title = (
     <div className="flex items-center gap-2">
-      <div>{t('address.signatures.permit.title')}</div>
+      <div>{t('signatures.permit.table.title')}</div>
     </div>
   );
 
@@ -42,7 +42,7 @@ const PermitsTable = () => {
         table={table}
         loading={isLoading}
         error={error}
-        emptyChildren={t('address.signatures.permit.none_found')}
+        emptyChildren={t('signatures.permit.table.none_found')}
         loaderRows={6}
         className="border-none"
       />

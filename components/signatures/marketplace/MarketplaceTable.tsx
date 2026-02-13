@@ -15,7 +15,7 @@ const MarketplaceTable = () => {
 
   const title = (
     <div className="flex items-center gap-2">
-      <div>{t('address.signatures.marketplaces.title')}</div>
+      <div>{t('signatures.marketplace.table.title')}</div>
     </div>
   );
 
@@ -37,7 +37,7 @@ const MarketplaceTable = () => {
         table={table}
         loading={isLoading}
         error={error}
-        emptyChildren={t('address.signatures.marketplaces.none_found')}
+        emptyChildren={t('signatures.marketplace.table.none_found')}
         loaderRows={2}
         className="border-none"
       />
