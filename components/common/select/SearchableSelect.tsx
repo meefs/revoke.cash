@@ -65,7 +65,14 @@ const SearchableSelect = <O, I extends boolean, G extends GroupBase<O>>(props: P
     <SelectOverlay
       isSelectOpen={isSelectOpen}
       handleSelectClose={handleSelectClose}
-      target={<TargetButton ref={buttonRef} toggleSelectClose={toggleSelectOpen} selectProps={props as any} />}
+      target={
+        <TargetButton
+          ref={buttonRef}
+          toggleSelectClose={toggleSelectOpen}
+          selectProps={props as any}
+          instanceId={props.instanceId ?? 'control-button-wrapper'}
+        />
+      }
       selectProps={props}
     >
       <Select
@@ -141,6 +148,7 @@ const SelectOverlay = <O, I extends boolean, G extends GroupBase<O>>(props: Sele
 interface TargetButtonProps<O, I extends boolean, G extends GroupBase<O>> {
   toggleSelectClose: () => void;
   selectProps: Props<O, I, G>;
+  instanceId: string | number;
 }
 
 const TargetButton = forwardRef(
@@ -168,6 +176,7 @@ const TargetButton = forwardRef(
         style="secondary"
         onClick={toggleSelectClose}
         className="flex items-center gap-2 px-2 h-9 font-normal rounded-lg control-button-wrapper"
+        id={`react-select-${props.instanceId}-target-button`}
       >
         {formatControlOptionLabel(selectProps.value as O)}
         <Chevron className="w-5 h-5 fill-black dark:fill-white" />

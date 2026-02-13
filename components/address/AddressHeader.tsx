@@ -31,13 +31,18 @@ const AddressHeader = () => {
               </div>
             </div>
             <div className="sm:hidden">
-              <ChainSelect instanceId="address-chain-select" selected={selectedChainId} onSelect={selectChain} />
+              <ChainSelect instanceId="address-chain-select-mobile" selected={selectedChainId} onSelect={selectChain} />
             </div>
           </div>
           <AddressExternalLinks address={address} chainId={selectedChainId} />
         </div>
         <div className="hidden sm:block">
-          <ChainSelect instanceId="address-chain-select" selected={selectedChainId} onSelect={selectChain} showNames />
+          <ChainSelect
+            instanceId="address-chain-select-desktop"
+            selected={selectedChainId}
+            onSelect={selectChain}
+            showNames
+          />
         </div>
       </div>
       <AddressNavigation />

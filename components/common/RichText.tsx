@@ -31,11 +31,6 @@ const tags = {
       {children}
     </Href>
   ),
-  'gashawk-link': (children: ReactNode) => (
-    <Href href="https://gashawk.io" className="font-medium" underline="hover" html external>
-      {children}
-    </Href>
-  ),
   'twitter-link': (children: ReactNode) => (
     <Href href={TWITTER_URL} className="font-medium" underline="hover" html external>
       {children}
@@ -88,11 +83,6 @@ const tags = {
   ),
   'nexus-link': (children: ReactNode) => (
     <Href href="https://nexusmutual.io" className="font-medium" underline="hover" html external>
-      {children}
-    </Href>
-  ),
-  'bright-union-link': (children: ReactNode) => (
-    <Href href="https://brightunion.io" className="font-medium" underline="hover" html external>
       {children}
     </Href>
   ),

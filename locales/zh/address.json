@@ -30,7 +30,7 @@
         "non_evm": "非 EVM",
         "title": "支持的区块链"
       },
-      "description": "Revoke.cash 可以帮助您管理加密货币领域的风险。我们提供的各种工具可以帮助您防止资金被盗或损失。但即便如此，依然可能遭受诈骗和黑客攻击。这就是保险的价值所在。保险可以在钱包被盗时依然保障钱包价值。保险类型有很多，从智能合约黑客攻击到网络钓鱼攻击都有覆盖。我们与<fairside-link>Fairside</fairside-link>合作，为您提供一些网络钓鱼和社交工程泄密的保险，也有其他针对智能合约黑客攻击的保险产品，如<nexus-link>Nexus Mutual</nexus-link>或<bright-union-link>Bright Union</bright-union-link>。",
+      "description": "Revoke.cash 可以帮助您管理加密货币领域的风险。我们提供的各种工具可以帮助您防止资金被盗或损失。但即便如此，依然可能遭受诈骗和黑客攻击。这就是保险的价值所在。保险可以在钱包被盗时依然保障钱包价值。保险类型有很多，从智能合约黑客攻击到网络钓鱼攻击都有覆盖。我们与<fairside-link>Fairside</fairside-link>合作，为您提供一些网络钓鱼和社交工程泄密的保险，也有其他针对智能合约黑客攻击的保险产品，如<nexus-link>Nexus Mutual</nexus-link>。",
       "important": {
         "coverage_amount": "为特定 ETH 金额购买保险——如果您的投资组合价值升值（折算成 ETH），您也只能获得之前配置的 ETH 金额的保障。",
         "fee": "付款需支付 10% 的个人责任费。",
