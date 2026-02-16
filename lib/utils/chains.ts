@@ -1192,7 +1192,7 @@ export const CHAINS = {
     nativeToken: 'KAS',
     nativeTokenCoingeckoId: 'kaspa',
     infoUrl: 'https://kasplex.org/',
-    logoUrl: '/assets/images/vendor/chains/kasplex.svg',
+    logoUrl: '/assets/images/vendor/chains/kasplex.png',
     explorerUrl: 'https://explorer.kasplex.org',
     etherscanCompatibleApiUrl: 'https://api-explorer.kasplex.org/api',
     rpc: {
