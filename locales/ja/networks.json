@@ -52,6 +52,7 @@
     "injective": "InjectiveはCosmos SDKで構築されたレイヤー1のブロックチェーンであり、分散型金融に特化しています。高速かつ低コストの取引、Ethereumや他チェーンとのネイティブな相互運用性、取引アプリケーション向けの専用インフラを提供します。",
     "ink": "Inkは、暗号通貨取引所Krakenのチームによって作成された、Ethereum用のレイヤー2のスケーリング ソリューションです。OptimismのオープンソースOPスタック上に構築されているため、Optimismと同様にオプティミスティックロールアップテクノロジーを使用しています。Inkは、DeFiユースケース向けに低コストで高スループットのソリューションを提供することに重点を置いています。",
     "iota-evm": "IOTA EVMは、IOTAのネットワークをEVM互換のスマートコントラクトチェーンと統合することで、水平スケーラビリティーと高度なMEV保護を実現し、現実世界の資産を効率的にトークン化できます。柔軟なマルチVMアーキテクチャー内でスケーラブルで安全なスマートコントラクトをサポートします。このプラットフォームは資産の移転と取引を可能にし、強力なクロスチェーンインタラクション機能を備えたDeFi、ゲーム、NFT、DAOを対象としています。",
+    "kasplex-zkevm": "Kasplex zkEVM is an EVM compatible Layer 2 blockchain on top of the Kaspa network. It is built to bring EVM compatibility to the Kaspa network, which itself is built for high throughput and fast confirmation times.",
     "katana": "Katanaは、PolygonのチームがDeFi向けに特別に構築したレイヤー2のチェーンです。厳選された少数の分散型アプリに流動性を集中させることで、DeFiに高い流動性と高い利回りを提供することに重点を置いています。PolygonのAgglayerフレームワークを通じたネイティブな利回りと強力な相互運用性を特徴としています。",
     "kcc": "KCC（KuCoinコミュニティーチェーン）は、KuCoin取引所によって作成されたレイヤー1のブロックチェーンです。プルーフ・オブ・オーソリティーとプルーフ・オブ・ステークを組み合わせたプルーフ・オブ・ステーク・オーソリティーのコンセンサスメカニズムを採用しています。彼らのコンセンサスモデルでは、HECOやその他のPoAネットワークからインスピレーションを得ました。KCCは、低コストで迅速な取引を提供するネットワークの構築を目指しています。",
     "lens": "Lensは、SocialFiのユースケース向けにzkSyncのZK Stackを使用して構築されたレイヤー2のブロックチェーンです。Lensブロックチェーンは、ユーザーが自分のソーシャルプロフィールを作成したり、管理したり、他のユーザーとつながったり、コンテンツを操作したりできるソーシャルメディアプロトコルであるLens Protocolを強化します。",

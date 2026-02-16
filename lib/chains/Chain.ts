@@ -244,6 +244,8 @@ export class Chain {
     const transportOverrides: Record<number, any> = {
       // OctaSpace's RPC does not handle batch requests properly
       [ChainId.OctaSpace]: { batch: false },
+      // Kasplex's RPC does not handle batch requests properly
+      202555: { batch: false },
     };
 
     const multicallConfig = this.getDeployedContracts()?.multicall3 ? true : { deployless: true };

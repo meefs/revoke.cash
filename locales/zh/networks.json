@@ -52,6 +52,7 @@
     "injective": "Injective is a Layer 1 blockchain built with the Cosmos SDK that is focused on decentralized finance. It offers fast and low-cost transactions, native interoperability with Ethereum and other chains, and specialized infrastructure for trading applications.",
     "ink": "Ink 是以太坊的第 2 层（Layer 2）扩展解决方案，由加密货币交易所 Kraken 背后的团队创建。它采用 Optimism 的 OP Stack 构建，因此与 Optimism 一样，使用了 Optimistic Rollup 技术。Ink 专注于为 DeFi 用例提供低成本、高吞吐量的解决方案。",
     "iota-evm": "IOTA EVM 集成了 IOTA 网络与兼容 EVM 的智能合约链，提供了横向可扩展性和先进的 MEV 保护，实现了高效的现实资产代币化。IOTA EVM 支持在灵活的多虚拟机架构中运行可扩展的安全智能合约。该平台支持资产转移和交易，专门面向具有强大跨链交互能力的 DeFi、游戏、NFT 和 DAO 等领域。",
+    "kasplex-zkevm": "Kasplex zkEVM is an EVM compatible Layer 2 blockchain on top of the Kaspa network. It is built to bring EVM compatibility to the Kaspa network, which itself is built for high throughput and fast confirmation times.",
     "katana": "Katana 专门为 DeFi 构建的第 2 层（Layer 2）区块链，由 Polygon 背后的团队一手打造。Katana 通过将流动性集中在少数精选的去中心化应用程序中，为 DeFi 提供深度流动性和高收益。此外，Katana 采用 Polygon 的 Agglayer 框架，还实现了原生收益和强大的互操作性。",
     "kcc": "KuCoin 社区链（KuCoin Community Chain，简称 KCC）是由 KuCoin 交易所创建的第 1 层（Layer 1）区块链，采用权益权威证明（PoSA）共识机制，融合了权威证明（PoA）和权益证明（PoS）的特色。这一共识机制模型也从 HECO 和其他 PoA 网络中汲取了灵感。KCC 旨在打造低成本和快速交易的网络。",
     "lens": "Lens 是第 2 层（Layer 2）区块链，使用 zkSync 的 ZK Stack 构建，适用 SocialFi 用例。Lens 区块链为 Lens Protocol 提供支持，Lens Protocol 是一个社交媒体协议，允许用户创建和管理自己的社交资料、与其他用户联系以及与内容进行交互。",

@@ -125,6 +125,7 @@ export const CHAIN_SELECT_MAINNETS = [
   ChainId.RSS3VSLMainnet,
   ChainId.ExosamaNetwork,
   ChainId.OctaSpace,
+  202555, // Kasplex zkEVM
 ] as const;
 
 export const CHAIN_SELECT_TESTNETS = [
@@ -1183,6 +1184,22 @@ export const CHAINS = {
     chainId: ChainId.KaiaMainnet,
     name: 'Kaia',
     logoUrl: '/assets/images/vendor/chains/kaia.svg',
+  }),
+  202555: new Chain({
+    type: SupportType.BLOCKSCOUT,
+    chainId: 202555,
+    name: 'Kasplex zkEVM',
+    nativeToken: 'KAS',
+    nativeTokenCoingeckoId: 'kaspa',
+    infoUrl: 'https://kasplex.org/',
+    logoUrl: '/assets/images/vendor/chains/kasplex.svg',
+    explorerUrl: 'https://explorer.kasplex.org',
+    etherscanCompatibleApiUrl: 'https://api-explorer.kasplex.org/api',
+    rpc: {
+      main: 'https://evmrpc.kasplex.org',
+    },
+    // deployedContracts: { ...MULTICALL },
+    priceStrategy: undefined, // TODO
   }),
   [ChainId.Katana]: new Chain({
     type: SupportType.BLOCKSCOUT,
