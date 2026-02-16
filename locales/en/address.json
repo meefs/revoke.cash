@@ -228,7 +228,7 @@
   },
   "search": {
     "history": "Search by Spender or Token",
-    "spender": "Search by Approved Spender Address"
+    "spender": "Search by Spender"
   },
   "sessions": {
     "info": {

@@ -8,6 +8,7 @@ import { getChainIdFromSlug, getChainName, getChainSlug, SUPPORTED_CHAINS } from
 import { getOpenGraphImageUrl } from 'lib/utils/og';
 import type { Metadata, NextPage } from 'next';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
+import { Suspense } from 'react';
 import MarketplaceBulkDelisterChainSelect from './MarketplaceBulkDelisterChainSelect';
 import MarketplaceBulkDelisterChecker from './MarketplaceBulkDelisterChecker';
 
@@ -70,15 +71,17 @@ const MarketplaceBulkDelisterPage: NextPage<Props> = async ({ params }) => {
         </p>
       </Prose>
       <div className="flex flex-col items-center w-full">
-        <NextIntlClientProvider messages={{ common: messages.common, signatures: messages.signatures }}>
-          <MarketplaceBulkDelisterChecker chainId={chainId} />
-        </NextIntlClientProvider>
-        <div className="flex flex-col sm:flex-row items-center gap-2 my-4">
-          <p className="m-0">{t('signatures.marketplace.different_chain')}:</p>
-          <div className="not-prose shrink-0">
-            <MarketplaceBulkDelisterChainSelect chainId={chainId} />
+        <Suspense>
+          <NextIntlClientProvider messages={{ common: messages.common, signatures: messages.signatures }}>
+            <MarketplaceBulkDelisterChecker chainId={chainId} />
+          </NextIntlClientProvider>
+          <div className="flex flex-col sm:flex-row items-center gap-2 my-4">
+            <p className="m-0">{t('signatures.marketplace.different_chain')}:</p>
+            <div className="not-prose shrink-0">
+              <MarketplaceBulkDelisterChainSelect chainId={chainId} />
+            </div>
           </div>
-        </div>
+        </Suspense>
       </div>
     </div>
   );

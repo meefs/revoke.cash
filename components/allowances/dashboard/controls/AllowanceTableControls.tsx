@@ -4,7 +4,6 @@ import type { TokenAllowanceData } from 'lib/utils/allowances';
 import { Suspense } from 'react';
 import WalletHealthSection from '../wallet-health/WalletHealthSection';
 import AllowanceSearchBox from './AllowanceSearchBox';
-import FilterSelect from './FilterSelect';
 import SortSelect from './SortSelect';
 
 interface Props {
@@ -19,13 +18,12 @@ const AllowanceTableControls = ({ table }: Props) => {
       <div className="flex flex-col-reverse md:flex-row justify-start gap-2">
         <div className="flex flex-col justify-start gap-2 grow">
           <SortSelect table={table} />
-          <FilterSelect table={table} />
+          <Suspense>
+            <AllowanceSearchBox table={table} />
+          </Suspense>
         </div>
         <WalletHealthSection chainId={selectedChainId} />
       </div>
-      <Suspense>
-        <AllowanceSearchBox table={table} />
-      </Suspense>
     </div>
   );
 };
