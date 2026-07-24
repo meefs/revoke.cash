@@ -17,7 +17,7 @@ import {
   ViemLogsProvider,
 } from '@revoke.cash/core/events/providers';
 import { addressToTopic } from '@revoke.cash/core/events/utils';
-import { HOUR, SECOND } from '@revoke.cash/core/utils/time';
+import { HOUR, MINUTE, SECOND } from '@revoke.cash/core/utils/time';
 import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import type { Address, Hex, PublicClient } from 'viem';
@@ -37,6 +37,9 @@ const NARROW_RANGE_THRESHOLD = 10_000;
 
 // Block-rewind depth applied on every scheduled scan and mirrored on every allowance recompute
 export const REORG_DEPTH = 12;
+
+// Safety net for wallets that are still catching up; see `computeNextRunAt`
+const CATCHUP_FALLBACK_INTERVAL = 5 * MINUTE;
 
 const MIN_BLOCK_RANGE = 1_000;
 const MAX_BLOCK_RANGE = 1_000_000_000;
@@ -61,6 +64,7 @@ export interface IndexEventsResult {
   logsReorgedMarked: number;
   nonceZeroSkipped: boolean;
   isCapped: boolean;
+  isDisabled: boolean;
   rangeReductions: number;
   durationMs: number;
 }
@@ -74,6 +78,7 @@ const buildIndexEventsResult = (overrides: Partial<IndexEventsResult> = {}): Ind
   logsReorgedMarked: 0,
   nonceZeroSkipped: false,
   isCapped: false,
+  isDisabled: false,
   rangeReductions: 0,
   durationMs: 0,
   ...overrides,
@@ -148,6 +153,7 @@ export const indexEvents = async (address: Address, chainId: DocumentedChainId):
       logsWritten: committedFilterEvents?.reduce((acc, r) => acc + r.logsWritten, 0) ?? 0,
       logsReorgedMarked: committedFilterEvents?.reduce((acc, r) => acc + r.logsReorgedMarked, 0) ?? 0,
       isCapped: isCapped || rangeReductions > 0,
+      isDisabled: !isNullish(existingState?.disabledAt),
       rangeReductions,
       durationMs: Date.now() - start,
     });
@@ -272,12 +278,12 @@ const eventScanWasSuperseded = (
 };
 
 // failures >= 3 → 24h recovery
-// catchup batch (more history pending) → next scheduler tick
+// catchup batch (more history pending) → 5m safety net (+ immediately enqueues)
 // otherwise → 1h
 export const computeNextRunAt = (failures: number, isCatchupBatch = false): Date => {
   const now = Date.now();
   if (failures >= 3) return new Date(now + 24 * HOUR);
-  if (isCatchupBatch) return new Date(now);
+  if (isCatchupBatch) return new Date(now + CATCHUP_FALLBACK_INTERVAL);
   return new Date(now + 1 * HOUR);
 };
 

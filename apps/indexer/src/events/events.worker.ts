@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { InjectQueue, OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import {
@@ -5,7 +6,7 @@ import {
   type AllowancesJobData,
   allowanceRecomputeJobId,
 } from '@revoke.cash/backend/indexer/queues/allowances';
-import { EVENTS_QUEUE_NAME, type EventsJobData } from '@revoke.cash/backend/indexer/queues/events';
+import { catchupEventsJobId, EVENTS_QUEUE_NAME, type EventsJobData } from '@revoke.cash/backend/indexer/queues/events';
 import {
   enqueueUnenrichedSpenders,
   SPENDER_METADATA_QUEUE_NAME,
@@ -30,6 +31,7 @@ import {
 } from '@revoke.cash/core/indexer/events';
 import { parseErrorMessage } from '@revoke.cash/core/utils/errors';
 import type { Job, Queue } from 'bullmq';
+import type { Address } from 'viem';
 
 @Processor(EVENTS_QUEUE_NAME, { concurrency: 50, lockDuration: 90_000 })
 export class EventsWorker extends WorkerHost {
@@ -37,6 +39,7 @@ export class EventsWorker extends WorkerHost {
 
   constructor(
     private readonly groupLimiter: GroupLimiterService,
+    @InjectQueue(EVENTS_QUEUE_NAME) private readonly eventsQueue: Queue<EventsJobData>,
     @InjectQueue(ALLOWANCES_QUEUE_NAME) private readonly allowancesQueue: Queue<AllowancesJobData>,
     @InjectQueue(TIMESTAMPS_QUEUE_NAME) private readonly timestampsQueue: Queue<TimestampsJobData>,
     @InjectQueue(TOKEN_METADATA_QUEUE_NAME)
@@ -79,6 +82,12 @@ export class EventsWorker extends WorkerHost {
     }
 
     this.logger.log({ event: 'events_indexing_completed', outcome: 'ok', eventsScanId, chainId, address, ...result });
+
+    // If the result was capped, we immediately queue another scan, so we can catch up faster than if we wait for the scheduler to pick it up
+    // Catchup scans skip the scheduler, which is the only place `disabled_at` is honoured, so a manually paused pair breaks the chain here
+    if (result.isCapped && !result.isDisabled) {
+      await this.enqueueCatchupScan(chainId, address, result.toBlock, eventsScanId);
+    }
 
     if (result.logsWritten > 0) {
       await this.timestampsQueue.add('timestamps', { chainId }, { jobId: timestampsJobId(chainId) }).catch((error) => {
@@ -161,6 +170,41 @@ export class EventsWorker extends WorkerHost {
         fromBlock: result.fromBlock,
         toBlock: result.toBlock,
         enqueued: spenderMetadataEnqueued,
+      });
+    }
+  }
+
+  private async enqueueCatchupScan(
+    chainId: number,
+    address: Address,
+    lastToBlock: number,
+    previousEventsScanId: string,
+  ): Promise<void> {
+    try {
+      await this.eventsQueue.add(
+        'events',
+        { eventsScanId: randomUUID(), address, chainId, reason: 'catchup', scheduledAt: Date.now() },
+        { jobId: catchupEventsJobId(chainId, address, lastToBlock) },
+      );
+
+      this.logger.debug({
+        event: 'events_catchup_enqueued',
+        outcome: 'enqueued',
+        eventsScanId: previousEventsScanId,
+        chainId,
+        address,
+        lastToBlock,
+      });
+    } catch (error) {
+      // The wallet's `next_run_at` is already set to the catchup fallback interval, so the scheduler
+      // picks it back up shortly — a failed chain slows catchup down, it does not stall it
+      this.logger.warn({
+        event: 'events_catchup_enqueue_failed',
+        outcome: 'failed',
+        eventsScanId: previousEventsScanId,
+        chainId,
+        address,
+        error: parseErrorMessage(error),
       });
     }
   }
