@@ -152,7 +152,7 @@
     },
     "title": "Precios Premium",
     "tooltips": {
-      "automated_revoking": "Requiere MetaMask o algunas otras carteras. Compatible con determinadas redes. La revocación automática es una protección de mejor esfuerzo y no puede garantizar que se eviten las pérdidas."
+      "automated_revoking": "Requiere MetaMask o algunas otras carteras. Compatible con {networkCount} redes. La revocación automática es una protección de mejor esfuerzo y no puede garantizar que se eviten las pérdidas."
     }
   }
 }

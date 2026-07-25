@@ -161,9 +161,9 @@ const Header = ({ chainData }: HeaderProps) => {
   const { lastChecked, isRefreshing, refreshError, refetch } = chainData;
   const formattedValue = formatFiatAmount(totalValueAtRisk);
 
+  const wasRecentlyChecked = useWasRecentlyChecked(lastChecked);
   const lastCheckedText = lastChecked ? timeago.format(new Date(lastChecked), locale) : t('address.allowances.unknown');
-  const lastCheckedAge = lastChecked ? Date.now() - new Date(lastChecked).getTime() : 0;
-  const showLastChecked = isRefreshing || !isNullish(refreshError) || lastCheckedAge < 5 * SECOND;
+  const showLastChecked = isRefreshing || !isNullish(refreshError) || wasRecentlyChecked;
 
   const totalValueAtRiskIsSignificant = (formattedValue: string | null): boolean => {
     if (!formattedValue) return false;
@@ -190,6 +190,27 @@ const Header = ({ chainData }: HeaderProps) => {
       </div>
     </ChainSectionHeader>
   );
+};
+
+// The "Last Checked" label is only meant to be visible for a few seconds after a check completes, so we need to
+// schedule a re-render for when that window expires. Without it the label lingers until an unrelated re-render.
+const useWasRecentlyChecked = (lastChecked: string | null): boolean => {
+  const [wasRecentlyChecked, setWasRecentlyChecked] = useState(false);
+
+  useEffect(() => {
+    const remainingTime = lastChecked ? 5 * SECOND - (Date.now() - new Date(lastChecked).getTime()) : 0;
+
+    if (remainingTime <= 0) {
+      setWasRecentlyChecked(false);
+      return;
+    }
+
+    setWasRecentlyChecked(true);
+    const timeout = setTimeout(() => setWasRecentlyChecked(false), remainingTime);
+    return () => clearTimeout(timeout);
+  }, [lastChecked]);
+
+  return wasRecentlyChecked;
 };
 
 export default ChainAllowanceSection;

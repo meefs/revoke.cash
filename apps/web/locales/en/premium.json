@@ -152,7 +152,7 @@
     },
     "title": "Premium Pricing",
     "tooltips": {
-      "automated_revoking": "Requires MetaMask or select other wallets. Supported on select networks. Automated revoking is best-effort and cannot guarantee that losses are prevented."
+      "automated_revoking": "Requires MetaMask or select other wallets. Supported on {networkCount} networks. Automated revoking is best-effort and cannot guarantee that losses are prevented."
     }
   }
 }

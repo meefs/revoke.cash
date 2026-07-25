@@ -1,4 +1,5 @@
 import { CheckIcon } from '@heroicons/react/24/solid';
+import { AUTO_REVOKE_SUPPORTED_CHAINS } from '@revoke.cash/core/auto-revoke/config';
 import Button from 'components/common/Button';
 import FadeIn from 'components/common/FadeIn';
 import InformationIconTooltip from 'components/common/InformationIconTooltip';
@@ -69,6 +70,7 @@ const PremiumSection = () => {
             <Highlight
               i18nKey="landing.premium.ultimate_features.automated_revoking"
               tooltipKey="landing.premium.ultimate_features.automated_revoking_tooltip"
+              tooltipValues={{ networkCount: AUTO_REVOKE_SUPPORTED_CHAINS.length }}
             />
             <Highlight i18nKey="landing.premium.ultimate_features.gas_allowance" />
           </ul>
@@ -121,7 +123,13 @@ const PremiumSectionCard = ({
   );
 };
 
-const Highlight = ({ i18nKey, tooltipKey }: { i18nKey: string; tooltipKey?: string }) => {
+interface HighlightProps {
+  i18nKey: string;
+  tooltipKey?: string;
+  tooltipValues?: Record<string, string | number>;
+}
+
+const Highlight = ({ i18nKey, tooltipKey, tooltipValues }: HighlightProps) => {
   const t = useTranslations();
 
   return (
@@ -129,7 +137,7 @@ const Highlight = ({ i18nKey, tooltipKey }: { i18nKey: string; tooltipKey?: stri
       <CheckIcon className="w-4 h-4 shrink-0 text-green-600 dark:text-green-400" />
       <span className="flex items-center gap-1">
         {t(i18nKey)}
-        {tooltipKey && <InformationIconTooltip tooltip={t(tooltipKey)} />}
+        {tooltipKey && <InformationIconTooltip tooltip={t(tooltipKey, tooltipValues)} />}
       </span>
     </li>
   );

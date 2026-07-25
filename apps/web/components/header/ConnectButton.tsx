@@ -80,7 +80,7 @@ const ConnectButton = ({ size, style, className, text, redirect, onClick, onConn
                 <Button
                   style="secondary"
                   size="none"
-                  className="flex justify-start items-center gap-2 p-2 border border-black rounded-lg w-full text-lg"
+                  className="flex justify-start items-center gap-2 p-2 rounded-lg w-full text-lg"
                   key={`${connector.id} / ${connector.name}`}
                   onClick={() => connectAndRedirect(connector)}
                 >

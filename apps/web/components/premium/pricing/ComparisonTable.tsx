@@ -1,5 +1,5 @@
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import { AUTO_REVOKE_MONTHLY_GAS_BUDGET_USD } from '@revoke.cash/core/auto-revoke/config';
+import { AUTO_REVOKE_MONTHLY_GAS_BUDGET_USD, AUTO_REVOKE_SUPPORTED_CHAINS } from '@revoke.cash/core/auto-revoke/config';
 import InformationIconTooltip from 'components/common/InformationIconTooltip';
 import { useTranslations } from 'next-intl';
 import { FEATURES, TIER_KEYS, type TierKey } from './pricing-data';
@@ -44,7 +44,11 @@ const ComparisonTable = ({ walletSlots }: Props) => {
                   <span className="flex items-center gap-1">
                     {t(`premium.pricing.features.${feature.labelKey}`)}
                     {feature.tooltipKey && (
-                      <InformationIconTooltip tooltip={t(`premium.pricing.tooltips.${feature.tooltipKey}`)} />
+                      <InformationIconTooltip
+                        tooltip={t(`premium.pricing.tooltips.${feature.tooltipKey}`, {
+                          networkCount: AUTO_REVOKE_SUPPORTED_CHAINS.length,
+                        })}
+                      />
                     )}
                   </span>
                 </td>

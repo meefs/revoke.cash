@@ -152,7 +152,7 @@
     },
     "title": "Premium 定价",
     "tooltips": {
-      "automated_revoking": "需要使用 MetaMask 或部分其他钱包。仅支持部分网络。自动撤销是尽力而为的保护，无法保证完全避免损失。"
+      "automated_revoking": "需要使用 MetaMask 或部分其他钱包。支持 {networkCount} 个网络。自动撤销是尽力而为的保护，无法保证完全避免损失。"
     }
   }
 }
