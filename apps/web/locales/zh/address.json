@@ -145,6 +145,7 @@
     "eoa": "外部拥有账户",
     "excessive_expiration": "到期时间过长",
     "exploit": "涉及 {data}",
+    "exploit_unnamed": "涉及过往的漏洞攻击",
     "levels": {
       "high": "高风险",
       "low": "低风险",

@@ -245,11 +245,10 @@
     "benefits": {
       "auto_revoke": "自動取り消しの設定と監視",
       "billing": "請求履歴の確認",
-      "coverage": "Fairsideカバレッジの確認と管理",
       "manage_subscription": "プレミアムサブスクリプションの管理",
       "title": "このページでできること"
     },
-    "description": "ログインして、プレミアムサブスクリプション、自動取り消し、ウォレットスロット、カバレッジを管理しましょう。",
+    "description": "ログインして、プレミアムサブスクリプション、自動取り消し、ウォレットスロットを管理しましょう。",
     "selected_plan": {
       "summary": "年間 {price} で、最大 {maxAddresses} 個のウォレットが含まれます。続行するにはウォレットを接続してください。",
       "title": "{planName} を購読する"

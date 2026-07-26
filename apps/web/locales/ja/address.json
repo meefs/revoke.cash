@@ -145,6 +145,7 @@
     "eoa": "外部所有アカウント",
     "excessive_expiration": "有効期限が長すぎる",
     "exploit": "{data}に関与していました",
+    "exploit_unnamed": "過去のエクスプロイトに関与していました",
     "levels": {
       "high": "高リスク",
       "low": "低リスク",

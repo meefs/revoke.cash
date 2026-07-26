@@ -2,6 +2,7 @@ import { laneForSigner } from '@revoke.cash/core/admin/executor';
 import type { Action, ActionStatus } from '@revoke.cash/core/auto-revoke/actions';
 import {
   type AutoRevokeActivityItem,
+  activityDateSql,
   loadMetadataByChain,
   mapActivityItem,
 } from '@revoke.cash/core/auto-revoke/activity';
@@ -61,7 +62,7 @@ export const getAdminActivity = async (filters: AdminActivityFilters): Promise<A
   const [rows, [{ totalCount }]] = await Promise.all([
     baseActivityQuery()
       .where(and(...conditions))
-      .orderBy(desc(autoRevokeActions.createdAt), desc(autoRevokeActions.id))
+      .orderBy(desc(activityDateSql), desc(autoRevokeActions.id))
       .limit(filters.pageSize)
       .offset((filters.page - 1) * filters.pageSize),
     baseActivityCountQuery().where(and(...conditions)),

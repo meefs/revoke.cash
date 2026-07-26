@@ -245,11 +245,10 @@
     "benefits": {
       "auto_revoke": "设置并监控自动撤销",
       "billing": "查看您的账单记录",
-      "coverage": "查看并管理 Fairside 保障",
       "manage_subscription": "管理您的 Premium 订阅",
       "title": "您可以在这里进行的操作"
     },
-    "description": "登录以管理您的 Premium 订阅、自动撤销、钱包名额和保障。",
+    "description": "登录以管理您的 Premium 订阅、自动撤销和钱包名额。",
     "selected_plan": {
       "summary": "每年 {price}，最多包含 {maxAddresses} 个钱包。连接钱包以继续。",
       "title": "订阅 {planName}"

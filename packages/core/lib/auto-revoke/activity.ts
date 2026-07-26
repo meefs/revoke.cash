@@ -15,7 +15,7 @@ import {
 import type { TokenMetadata } from '@revoke.cash/core/tokens';
 import { deduplicateArray } from '@revoke.cash/core/utils';
 import type { SpenderRiskData } from '@revoke.cash/core/whois';
-import { and, desc, eq, getTableColumns, inArray, type SQL } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, inArray, type SQL, sql } from 'drizzle-orm';
 import type { Address, Hash } from 'viem';
 import type { Action, ActionErrorCode, ActionStatus } from './actions';
 import type { Observation } from './evaluation/observations';
@@ -50,6 +50,9 @@ export const getSubscriptionActivity = (subscriptionId: string): Promise<AutoRev
 // We don't display activity that is not real or relevant, such as blocked_permission, blocked_rules and skipped.
 const DISPLAYED_STATUSES: ActionStatus[] = ['queued', 'blocked_budget', 'submitted', 'succeeded', 'failed'];
 
+// SQL equivalent of the `date` resolution in mapActivityItem, so ordering follows the displayed date.
+export const activityDateSql = sql`coalesce((${autoRevokeActions.transaction} ->> 'minedAt')::timestamptz, ${autoRevokeActions.completedAt}, ${autoRevokeActions.submittedAt}, ${autoRevokeActions.createdAt})`;
+
 const queryActivity = async (scopeFilter: SQL, joinMembership = false): Promise<AutoRevokeActivityItem[]> => {
   const baseQuery = getDb()
     .select({
@@ -68,13 +71,12 @@ const queryActivity = async (scopeFilter: SQL, joinMembership = false): Promise<
 
   const rows = await scopedQuery
     .where(and(scopeFilter, inArray(autoRevokeActions.status, DISPLAYED_STATUSES)))
-    .orderBy(desc(autoRevokeActions.createdAt), desc(autoRevokeActions.id));
+    .orderBy(desc(activityDateSql), desc(autoRevokeActions.id));
 
   const actions = rows as Action[];
   const metadataByChain = await loadMetadataByChain(actions);
 
-  const items = actions.map((action) => mapActivityItem(action, metadataByChain.get(action.observation.chainId)));
-  return items.sort((a, b) => b.date.localeCompare(a.date));
+  return actions.map((action) => mapActivityItem(action, metadataByChain.get(action.observation.chainId)));
 };
 
 interface ChainMetadata {

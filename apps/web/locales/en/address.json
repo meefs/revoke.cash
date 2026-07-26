@@ -145,6 +145,7 @@
     "eoa": "Externally Owned Account",
     "excessive_expiration": "Excessive expiration",
     "exploit": "Involved in the {data}",
+    "exploit_unnamed": "Involved in a past exploit",
     "levels": {
       "high": "high risk",
       "low": "low risk",

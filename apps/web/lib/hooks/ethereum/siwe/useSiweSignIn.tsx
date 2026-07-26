@@ -1,11 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AUTH_SESSION_QUERY_KEY } from 'lib/auth/session';
+import { AUTH_SESSION_QUERY_KEY, restoreSiweSession } from 'lib/auth/session';
 import ky from 'lib/ky';
-import { useConnection } from 'wagmi';
+import { useConfig, useConnection } from 'wagmi';
+import { getConnection } from 'wagmi/actions';
 import { useSiweSignature } from './useSiweSignature';
 
-export const useSiweSignIn = () => {
+interface Options {
+  requireFreshSignature?: boolean;
+}
+
+export const useSiweSignIn = ({ requireFreshSignature }: Options = {}) => {
   const queryClient = useQueryClient();
+  const config = useConfig();
   const { address } = useConnection();
   const { error: signatureError, isLoading: isSigning, signIn: signSiweMessage } = useSiweSignature(address);
 
@@ -15,6 +21,13 @@ export const useSiweSignIn = () => {
     isPending: isVerifying,
   } = useMutation({
     mutationFn: async () => {
+      const signingAddress = address ?? getConnection(config).address;
+
+      // A wallet that previously signed in from this browser can restore its session without a new signature
+      if (!requireFreshSignature && signingAddress && (await restoreSiweSession(signingAddress))) {
+        return signingAddress;
+      }
+
       const signatureResult = await signSiweMessage();
       if (signatureResult.error) {
         throw signatureResult.error;

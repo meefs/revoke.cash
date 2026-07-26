@@ -245,11 +245,10 @@
     "benefits": {
       "auto_revoke": "Configura y supervisa la Revocación automática",
       "billing": "Consulta tu historial de facturación",
-      "coverage": "Consulta y gestiona la cobertura de Fairside",
       "manage_subscription": "Gestiona tu suscripción Premium",
       "title": "Qué puedes hacer aquí"
     },
-    "description": "Inicia sesión para gestionar tu suscripción Premium, la Revocación automática, tus espacios de cartera y tu cobertura.",
+    "description": "Inicia sesión para gestionar tu suscripción Premium, la Revocación automática y tus espacios de cartera.",
     "selected_plan": {
       "summary": "{price} al año con hasta {maxAddresses} carteras incluidas. Conecta tu cartera para continuar.",
       "title": "Suscríbete a {planName}"

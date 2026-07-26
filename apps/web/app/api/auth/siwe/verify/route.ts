@@ -8,7 +8,7 @@ import {
   RateLimiters,
   requireRateLimit,
   storeSessionEdge,
-  storeSiweCookieEdge,
+  storeSiweWalletEdge,
 } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
@@ -49,10 +49,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false }, { status: 400 });
     }
 
-    const siwe = { address, message, signature, verifiedAt: Date.now() };
+    const siwe = { address, verifiedAt: Date.now() };
     const res = NextResponse.json({ ok: true });
     await storeSessionEdge(req, res, { siwe });
-    await storeSiweCookieEdge(req, res, siwe);
+    await storeSiweWalletEdge(req, res, siwe);
     await destroySiweNonceCookieEdge(req, res);
 
     await recordAuditEvent({ action: 'signed_in', actorAddress: address, details: {} });

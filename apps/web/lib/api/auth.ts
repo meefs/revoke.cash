@@ -2,7 +2,7 @@ import { hasActivePremiumEntitlement, hasActiveUltimateEntitlement } from '@revo
 import type { Nullable } from '@revoke.cash/core/types';
 import { isNullish } from '@revoke.cash/core/utils';
 import { ApiError } from '@revoke.cash/core/utils/errors';
-import { HOUR } from '@revoke.cash/core/utils/time';
+import { DAY, HOUR, SECOND } from '@revoke.cash/core/utils/time';
 import { getIronSession, type SessionOptions, unsealData } from 'iron-session';
 import { type AuthSession, UNAUTHENTICATED_AUTH_SESSION } from 'lib/auth/session';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -11,16 +11,24 @@ import type { NextRequest, NextResponse } from 'next/server';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import { type Address, getAddress, type Hex, isAddressEqual } from 'viem';
 
-export interface SiweFields {
+export interface SiweSessionData {
   address: Address;
-  message: string;
-  signature: Hex;
-  verifiedAt?: number;
+  verifiedAt: number;
+}
+
+// The SIWE wallet cookie stores every wallet that signed in from this browser, so previously
+// authenticated wallets can restore a session without a new signature
+interface SiweWalletCookieData extends LegacySiweCookieData {
+  wallets?: Record<Address, SiweWalletEntry>;
+}
+
+interface SiweWalletEntry {
+  verifiedAt: number;
 }
 
 export interface RevokeSession {
   ip?: string;
-  siwe?: SiweFields;
+  siwe?: SiweSessionData;
 }
 
 export const IRON_OPTIONS: SessionOptions = {
@@ -33,10 +41,11 @@ export const IRON_OPTIONS: SessionOptions = {
   },
 };
 
+const SIWE_WALLET_MAX_AGE_MS = 90 * DAY;
 export const SIWE_IRON_OPTIONS: SessionOptions = {
   cookieName: 'revoke_siwe',
   password: process.env.IRON_SESSION_PASSWORD!,
-  ttl: 60 * 60 * 24 * 90, // 90 days — outlives the 24h main session so SIWE can restore it
+  ttl: SIWE_WALLET_MAX_AGE_MS / SECOND, // Backstop: the seal expires 90 days after the last sign-in with any wallet
   cookieOptions: {
     secure: true,
     sameSite: 'none',
@@ -142,22 +151,42 @@ export const unsealSession = async (sealedSession: string) => {
   return unsealData<RevokeSession>(sealedSession, { password, ttl });
 };
 
-export const storeSiweCookieEdge = async (req: NextRequest, res: NextResponse, siwe: SiweFields) => {
-  const session = await getIronSession<SiweFields>(req, res, SIWE_IRON_OPTIONS);
-  session.address = siwe.address;
-  session.message = siwe.message;
-  session.signature = siwe.signature;
-  session.verifiedAt = siwe.verifiedAt;
+export const storeSiweWalletEdge = async (req: NextRequest, res: NextResponse, siwe: SiweSessionData) => {
+  const session = await getIronSession<SiweWalletCookieData>(req, res, SIWE_IRON_OPTIONS);
+
+  const wallets = getValidSiweWallets(session);
+  wallets[getAddress(siwe.address)] = { verifiedAt: siwe.verifiedAt };
+  session.wallets = wallets;
+
+  deleteLegacyCookieData(session);
+
   await session.save();
 };
 
-const unsealSiweCookie = async (sealedCookie: string): Promise<SiweFields | null> => {
+export const getStoredSiweWalletEdge = async (req: NextRequest, address: Address): Promise<SiweSessionData | null> => {
+  const siweCookie = req.cookies.get(SIWE_IRON_OPTIONS.cookieName)?.value;
+  if (!siweCookie) return null;
+
   try {
     const { password, ttl } = SIWE_IRON_OPTIONS;
-    return await unsealData<SiweFields>(sealedCookie, { password, ttl });
+    const cookieData = await unsealData<SiweWalletCookieData>(siweCookie, { password, ttl });
+    const wallet = getValidSiweWallets(cookieData)[getAddress(address)];
+    if (!wallet) return null;
+
+    return { address: getAddress(address), verifiedAt: wallet.verifiedAt };
   } catch {
     return null;
   }
+};
+
+const getValidSiweWallets = (cookieData: SiweWalletCookieData): Record<Address, SiweWalletEntry> => {
+  const wallets = cookieData.wallets ?? getLegacySiweWallet(cookieData);
+  const validWallets = Object.entries(wallets).filter(([, wallet]) => isSiweWalletValid(wallet));
+  return Object.fromEntries(validWallets) as Record<Address, SiweWalletEntry>;
+};
+
+const isSiweWalletValid = (wallet: SiweWalletEntry): boolean => {
+  return Date.now() - wallet.verifiedAt <= SIWE_WALLET_MAX_AGE_MS;
 };
 
 export const storeSiweNonceCookieEdge = async (req: NextRequest, res: NextResponse, nonce: string) => {
@@ -184,18 +213,9 @@ export const destroySiweNonceCookieEdge = async (req: NextRequest, res: NextResp
   session.destroy();
 };
 
-export const destroySessionsEdge = async (req: NextRequest, res: NextResponse) => {
+export const destroySessionEdge = async (req: NextRequest, res: NextResponse) => {
   const mainSession = await getIronSession<RevokeSession>(req, res, IRON_OPTIONS);
   mainSession.destroy();
-
-  const siweSession = await getIronSession<SiweFields>(req, res, SIWE_IRON_OPTIONS);
-  siweSession.destroy();
-};
-
-export const getSiweCookieEdge = async (req: NextRequest): Promise<SiweFields | null> => {
-  const siweCookie = req.cookies.get(SIWE_IRON_OPTIONS.cookieName)?.value;
-  if (!siweCookie) return null;
-  return unsealSiweCookie(siweCookie);
 };
 
 export const checkActiveSession = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -289,7 +309,7 @@ export async function authorizeRequest(
 const MAX_ADMIN_SESSION_AGE_MS = 24 * HOUR;
 
 export const requireAdminSession = async (req: NextRequest): Promise<Address> => {
-  const siwe = await getAuthenticatedSiweFields(req);
+  const siwe = await getAuthenticatedSiweSession(req);
   if (!siwe || !isAdminAddress(siwe.address)) {
     throw new ApiError(403, 'Not authorized');
   }
@@ -321,7 +341,7 @@ const isAdminAddress = (address: Address): boolean => {
   }
 };
 
-const getAuthenticatedSiweFields = async (req: NextRequest): Promise<SiweFields | null> => {
+const getAuthenticatedSiweSession = async (req: NextRequest): Promise<SiweSessionData | null> => {
   const sealedSession = req.cookies.get(IRON_OPTIONS.cookieName)?.value;
   if (!sealedSession) return null;
 
@@ -355,7 +375,7 @@ export const requireApiSession = async (req: NextRequest) => {
 };
 
 export const requireSiweSession = async (req: NextRequest): Promise<Address> => {
-  const siwe = await getAuthenticatedSiweFields(req);
+  const siwe = await getAuthenticatedSiweSession(req);
   if (!siwe) {
     throw new ApiError(403, 'No SIWE session is active');
   }
@@ -461,4 +481,25 @@ const regexes = {
 
 const isIp = (ip?: Nullable<string>): ip is string => {
   return !isNullish(ip) && (regexes.ipv4.test(ip) || regexes.ipv6.test(ip));
+};
+
+// LEGACY //////////////////////////////////////////////////////////////////////
+// Note: all legacy stuff should be removed on Nov 1st.
+interface LegacySiweCookieData {
+  address?: Address;
+  message?: string;
+  signature?: Hex;
+  verifiedAt?: number;
+}
+
+const getLegacySiweWallet = (cookieData: LegacySiweCookieData): Record<Address, SiweWalletEntry> => {
+  if (!cookieData.address || !cookieData.verifiedAt) return {};
+  return { [getAddress(cookieData.address)]: { verifiedAt: cookieData.verifiedAt } };
+};
+
+const deleteLegacyCookieData = (session: LegacySiweCookieData) => {
+  delete session.address;
+  delete session.message;
+  delete session.signature;
+  delete session.verifiedAt;
 };

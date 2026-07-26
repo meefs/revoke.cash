@@ -145,6 +145,7 @@
     "eoa": "Cuenta de Propiedad Externa",
     "excessive_expiration": "Caducidad excesiva",
     "exploit": "Involucrado en la {data}",
+    "exploit_unnamed": "Involucrado en un exploit anterior",
     "levels": {
       "high": "alto riesgo",
       "low": "bajo riesgo",

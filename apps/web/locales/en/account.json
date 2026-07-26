@@ -245,11 +245,10 @@
     "benefits": {
       "auto_revoke": "Set up and monitor Auto-Revoking",
       "billing": "View your billing history",
-      "coverage": "View and manage Fairside coverage",
       "manage_subscription": "Manage your Premium subscription",
       "title": "What you can do here"
     },
-    "description": "Sign in to manage your Premium subscription, Auto-Revoking, wallet slots, and coverage.",
+    "description": "Sign in to manage your Premium subscription, Auto-Revoking, and wallet slots.",
     "selected_plan": {
       "summary": "{price} per year with up to {maxAddresses} wallets included. Connect your wallet to continue.",
       "title": "Subscribe to {planName}"

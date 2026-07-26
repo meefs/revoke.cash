@@ -349,7 +349,7 @@ const mapRules = (row: RulesRecord): AutoRevokeRules => ({
 const DEFAULT_RULES: AutoRevokeRules = {
   riskDetectionEnabled: true,
   riskSensitivity: 'exploits_only',
-  staleApprovalEnabled: false,
+  staleApprovalEnabled: true,
   staleApprovalThresholdDays: 180,
 };
 

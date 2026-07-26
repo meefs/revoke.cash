@@ -85,6 +85,13 @@
       "when": 1784708434840,
       "tag": "0011_batch_revokes_lowercase_user_address",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1785097345778,
+      "tag": "0012_auto_revoke_stale_approval_default",
+      "breakpoints": true
     }
   ]
 }

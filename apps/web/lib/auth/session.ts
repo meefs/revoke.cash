@@ -83,6 +83,19 @@ const getAuthSession = async (): Promise<AuthSession | null> => {
     .catch(() => null);
 };
 
+export const restoreSiweSession = async (address: Address): Promise<boolean> => {
+  try {
+    await ensureAuthSession();
+    const response = await kyBase.post('/api/auth/siwe/restore', { json: { address } }).json<{ ok?: boolean }>();
+    if (!response?.ok) return false;
+
+    await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 // The cached session bootstrap can outlive the session cookie (e.g. the session is destroyed on
 // wallet disconnect, possibly in another tab); re-establish the session and retry the request once
 export const retryWithFreshApiSession = async ({ request, response }: { request: Request; response: Response }) => {

@@ -54,7 +54,7 @@ const AdminSignInView = () => {
   const queryClient = useQueryClient();
   const { address: account } = useConnection();
   const { siweAddress } = useAuthSession();
-  const { signIn, isLoading: isAuthenticating } = useSiweSignIn();
+  const { signIn, isLoading: isAuthenticating } = useSiweSignIn({ requireFreshSignature: true });
 
   // Re-signing with the same address leaves the session query key unchanged, so the admin
   // session must be invalidated explicitly for the gate to re-evaluate

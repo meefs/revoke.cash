@@ -1,6 +1,7 @@
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import Analytics from 'app/Analytics';
 import CrispChat from 'app/CrispChat';
+import SiweSessionRestorer from 'app/SiweSessionRestorer';
 import ThemeScript from 'app/ThemeScript';
 import ToastifyConfig from 'components/common/ToastifyConfig';
 import TopLoader from 'components/common/TopLoader';
@@ -81,6 +82,7 @@ const MainLayout = async ({ children, params }: Props) => {
             <AuthSessionProvider>
               <EthereumProvider>
                 <ColorThemeProvider>
+                  <SiweSessionRestorer />
                   <CrispChat />
                   <div className="flex flex-col mx-auto min-h-screen">
                     <AnnouncementsContainer />

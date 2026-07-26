@@ -35,12 +35,17 @@ const SOURCES: Record<string, DataSourceLink> = {
 const RiskFactorDisplay = ({ riskFactor }: Props) => {
   const t = useTranslations();
 
-  const riskFactorText = t(`address.risk_factors.${riskFactor.type}`, {
+  const messageKey =
+    riskFactor.type === 'exploit' && !riskFactor.data
+      ? 'address.risk_factors.exploit_unnamed'
+      : `address.risk_factors.${riskFactor.type}`;
+
+  const riskFactorText = t(messageKey, {
     type: riskFactor.type,
-    data: riskFactor.data!,
+    data: riskFactor.data ?? '',
   });
 
-  if (riskFactorText === `address.risk_factors.${riskFactor.type}`) return null;
+  if (riskFactorText === messageKey) return null;
 
   const source = SOURCES[riskFactor.source];
 
