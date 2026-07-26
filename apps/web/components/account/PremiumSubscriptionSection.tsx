@@ -1,13 +1,14 @@
 'use client';
 
 import type { PremiumEntitlement, PremiumSubscription } from '@revoke.cash/core/premium/types';
+import { isNullish } from '@revoke.cash/core/utils';
 import SubscriptionOverview from 'components/account/SubscriptionOverview';
 import SubscriptionPaymentSection from 'components/account/SubscriptionPaymentSection';
 import Card, { CardTitle } from 'components/common/Card';
 import { usePremiumPlans } from 'lib/hooks/premium/usePremiumPlans';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { Address } from 'viem';
 
@@ -69,27 +70,43 @@ const usePlanSelection = (
     activeSubscription?.plan.id ?? expiredSubscription?.plan.id ?? 'premium_annual',
   );
 
+  // The rules below only seed the selection. Once the user picks a plan themselves they own it, so
+  // late-arriving data can never pull the choice back out from under them.
+  const hasUserChosenPlan = useRef(false);
+
+  const choosePlanId = useCallback((planId: string) => {
+    hasUserChosenPlan.current = true;
+    setSelectedPlanId(planId);
+  }, []);
+
   const { plans, isLoading: isLoadingPlans } = usePremiumPlans(selectedPlanId);
 
-  // Preselect the tier chosen on the pricing page once the plans load
+  const activePlanId = activeSubscription?.plan.id;
+  const activePlanPriceUsdCents = activeSubscription?.plan.priceUsdCents;
+  const expiredPlanId = expiredSubscription?.plan.id;
+
+  // The tier from the pricing page wins, except when it would downgrade an active subscription:
+  // someone on Ultimate who follows a Premium link belongs on the plan they already have, not on a
+  // plan the selector disables and the server would reject
   useEffect(() => {
-    if (!preselectedTier) return;
+    if (hasUserChosenPlan.current) return;
 
     const preselectedPlan = plans.find((plan) => plan.tier === preselectedTier);
-    if (preselectedPlan) {
+    const wouldDowngrade =
+      !isNullish(activePlanPriceUsdCents) &&
+      !isNullish(preselectedPlan) &&
+      preselectedPlan.priceUsdCents < activePlanPriceUsdCents;
+
+    if (preselectedPlan && !wouldDowngrade) {
       setSelectedPlanId(preselectedPlan.id);
+      return;
     }
-  }, [preselectedTier, plans]);
 
-  // Sync selected plan when subscription data loads, unless the pricing page chose a tier
-  useEffect(() => {
-    if (preselectedTier) return;
-
-    const subscribedPlanId = activeSubscription?.plan.id ?? expiredSubscription?.plan.id;
+    const subscribedPlanId = activePlanId ?? expiredPlanId;
     if (subscribedPlanId) {
       setSelectedPlanId(subscribedPlanId);
     }
-  }, [activeSubscription?.plan.id, expiredSubscription?.plan.id, preselectedTier]);
+  }, [preselectedTier, plans, activePlanId, activePlanPriceUsdCents, expiredPlanId]);
 
   // Reset selected plan if loaded plans don't include it
   useEffect(() => {
@@ -101,5 +118,5 @@ const usePlanSelection = (
     }
   }, [plans, selectedPlanId]);
 
-  return { selectedPlanId, setSelectedPlanId, isLoadingPlans };
+  return { selectedPlanId, setSelectedPlanId: choosePlanId, isLoadingPlans };
 };
