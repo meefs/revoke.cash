@@ -6,9 +6,11 @@ import { getScriptLogsProvider } from '@revoke.cash/core/events/providers';
 import { addressToTopic } from '@revoke.cash/core/events/utils';
 import { and, eq } from 'drizzle-orm';
 import type { Address, Hash } from 'viem';
+import { SUBSCRIPTIONS_ADDRESS } from '../constants';
 import {
-  getPaymentConfig,
-  type PaymentConfig,
+  getPaymentTokenByAddress,
+  getPaymentTokens,
+  type PaymentToken,
   PREMIUM_PAYMENT_CHAIN_IDS,
   usdCentsToTokenUnits,
 } from './payment-config';
@@ -34,17 +36,20 @@ export interface SettleIncomingTransfersResult {
   createdPayments: number;
   belowMinimumAmount: number;
   deferred: number;
+  skippedUnknownToken: number;
   errors: number;
 }
 
-// The inverse of quote-based reconciliation: scan every USDC transfer sent to the subscriptions
-// address and make sure each one credits a subscription. Transfers first settle into an unmatched
-// quote from the same sender; without one, a settled payment is created on the spot.
+// The inverse of quote-based reconciliation: scan every accepted payment token transfer sent to the
+// subscriptions address and make sure each one credits a subscription. Transfers first settle into
+// an unmatched quote from the same sender for the same token; without one, a settled payment is
+// created on the spot.
 //
 // Known limitations: the on-chain sender is trusted as the subscription owner, so transfers
 // originating from exchange custody or contracts credit the sending address (payments must come
 // from the owner wallet, as documented at checkout). Credits are keyed by transaction hash, so a
-// single transaction carrying multiple qualifying transfers credits only one payment.
+// single transaction carrying multiple qualifying transfers credits only one payment, even when
+// those transfers are of different accepted tokens.
 export const settleIncomingTransfers = async (): Promise<SettleIncomingTransfersResult> => {
   const result: SettleIncomingTransfersResult = {
     transfers: 0,
@@ -53,6 +58,7 @@ export const settleIncomingTransfers = async (): Promise<SettleIncomingTransfers
     createdPayments: 0,
     belowMinimumAmount: 0,
     deferred: 0,
+    skippedUnknownToken: 0,
     errors: 0,
   };
 
@@ -77,8 +83,7 @@ const settleIncomingTransfersForChain = async (
   plans: PremiumPlan[],
   result: SettleIncomingTransfersResult,
 ): Promise<void> => {
-  const paymentConfig = getPaymentConfig(chainId);
-  if (!paymentConfig) return;
+  if (getPaymentTokens(chainId).length === 0) return;
 
   const logsProvider = getScriptLogsProvider(chainId);
   const latestBlock = await logsProvider.getLatestBlock();
@@ -89,8 +94,7 @@ const settleIncomingTransfersForChain = async (
   const toBlock = Math.min(latestBlock, fromBlock + MAX_SCAN_BLOCKS_PER_RUN - 1);
 
   const logs = await logsProvider.getLogs({
-    address: paymentConfig.token.address,
-    topics: [ERC20_TRANSFER_TOPIC, null, addressToTopic(paymentConfig.paymentAddress)],
+    topics: [ERC20_TRANSFER_TOPIC, null, addressToTopic(SUBSCRIPTIONS_ADDRESS)],
     fromBlock,
     toBlock,
   });
@@ -101,7 +105,7 @@ const settleIncomingTransfersForChain = async (
 
   for (const log of logs) {
     try {
-      const outcome = await settleTransfer(log, chainId, paymentConfig, plans, result);
+      const outcome = await settleTransfer(log, chainId, plans, result);
       if (outcome === 'deferred') unsettledBlocks.push(log.blockNumber);
     } catch (error) {
       console.error(`Failed to settle transfer ${log.transactionHash} on chain ${chainId}:`, error);
@@ -140,6 +144,7 @@ const saveScanCursor = async (chainId: number, lastScannedBlock: number): Promis
 
 interface IncomingTransfer {
   senderAddress: Address;
+  tokenAddress: Address;
   amount: bigint;
   txHash: Hash;
   blockNumber: bigint;
@@ -150,12 +155,17 @@ type SettleOutcome = 'settled' | 'deferred';
 const settleTransfer = async (
   log: Log,
   chainId: number,
-  paymentConfig: PaymentConfig,
   plans: PremiumPlan[],
   result: SettleIncomingTransfersResult,
 ): Promise<SettleOutcome> => {
   const transfer = parseIncomingTransfer(log, chainId);
   if (!transfer) return 'settled';
+
+  const paymentToken = getPaymentTokenByAddress(chainId, transfer.tokenAddress);
+  if (!paymentToken) {
+    result.skippedUnknownToken += 1;
+    return 'settled';
+  }
 
   result.transfers += 1;
 
@@ -169,7 +179,7 @@ const settleTransfer = async (
     return 'settled';
   }
 
-  const existingSettlement = await settleIntoExistingPayment(transfer, chainId, paymentConfig);
+  const existingSettlement = await settleIntoExistingPayment(transfer, chainId);
   if (existingSettlement.outcome === 'settled') {
     result.settledIntoExisting += 1;
     await trackSubscriptionActivated(existingSettlement.payment.ownerAddress, {
@@ -191,7 +201,7 @@ const settleTransfer = async (
 
   // The most expensive active plan the transferred amount covers
   const coveredPlan = plans
-    .filter((plan) => usdCentsToTokenUnits(plan.priceUsdCents, paymentConfig.token.decimals) <= transfer.amount)
+    .filter((plan) => usdCentsToTokenUnits(plan.priceUsdCents, paymentToken.decimals) <= transfer.amount)
     .at(-1);
 
   if (!coveredPlan) {
@@ -200,7 +210,7 @@ const settleTransfer = async (
     return 'settled';
   }
 
-  const createdPayment = await createSettledPayment(transfer, chainId, paymentConfig, coveredPlan);
+  const createdPayment = await createSettledPayment(transfer, chainId, paymentToken, coveredPlan);
   if (createdPayment) {
     result.createdPayments += 1;
     await trackSubscriptionActivated(transfer.senderAddress, {
@@ -222,6 +232,7 @@ const parseIncomingTransfer = (log: Log, chainId: number): IncomingTransfer | nu
 
   return {
     senderAddress: transfer.payload.from,
+    tokenAddress: log.address,
     amount: transfer.payload.amount,
     txHash: log.transactionHash,
     blockNumber: BigInt(log.blockNumber),
@@ -233,13 +244,12 @@ type ExistingPaymentSettlement =
   | { outcome: 'contended' }
   | { outcome: 'no_candidate' };
 
-// Credits the transfer to an unmatched quote from the same sender. Expired quotes stay eligible
-// for the same window as the poll path; preference order is exact amount match, then the most
-// expensive quote the amount covers, then pending over expired, then newest.
+// Credits the transfer to an unmatched quote from the same sender for the same token. Expired
+// quotes stay eligible for the same window as the poll path; preference order is exact amount
+// match, then the most expensive quote the amount covers, then pending over expired, then newest.
 const settleIntoExistingPayment = async (
   transfer: IncomingTransfer,
   chainId: number,
-  paymentConfig: PaymentConfig,
 ): Promise<ExistingPaymentSettlement> => {
   const db = getTransactionalDb();
 
@@ -247,7 +257,7 @@ const settleIntoExistingPayment = async (
     where: and(
       eq(premiumPayments.ownerAddress, transfer.senderAddress),
       eq(premiumPayments.chainId, chainId),
-      eq(premiumPayments.tokenAddress, paymentConfig.token.address),
+      eq(premiumPayments.tokenAddress, transfer.tokenAddress),
       matchablePaymentStatusConditions(),
     ),
     columns: { id: true, amountUsdCents: true, tokenDecimals: true, status: true, createdAt: true },
@@ -296,7 +306,7 @@ const settleIntoExistingPayment = async (
 const createSettledPayment = async (
   transfer: IncomingTransfer,
   chainId: number,
-  paymentConfig: PaymentConfig,
+  paymentToken: PaymentToken,
   plan: PremiumPlan,
 ) => {
   const db = getTransactionalDb();
@@ -321,9 +331,9 @@ const createSettledPayment = async (
           ownerAddress: transfer.senderAddress,
           subscriptionId,
           chainId,
-          tokenAddress: paymentConfig.token.address,
-          tokenSymbol: paymentConfig.token.symbol,
-          tokenDecimals: paymentConfig.token.decimals,
+          tokenAddress: paymentToken.address,
+          tokenSymbol: paymentToken.symbol,
+          tokenDecimals: paymentToken.decimals,
           amountUsdCents: plan.priceUsdCents,
           status: 'confirmed',
           expiresAt: now,

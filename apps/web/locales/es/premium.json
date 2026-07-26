@@ -122,7 +122,7 @@
       "title": "Precios Premium"
     },
     "most_popular_label": "Más popular",
-    "payment_note": "Paga con USDC en Ethereum u otras redes populares. Un pago único por un año completo, sin renovación automática y sin necesidad de aprobaciones de tokens.",
+    "payment_note": "Paga con USDC o USDT en Ethereum u otras redes populares. Un pago único por un año completo, sin renovación automática y sin necesidad de aprobaciones de tokens.",
     "per_year": "/año",
     "subscriber_banner": {
       "description": "Tu cartera conectada tiene una suscripción {tier} activa.",

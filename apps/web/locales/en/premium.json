@@ -122,7 +122,7 @@
       "title": "Premium Pricing"
     },
     "most_popular_label": "Most Popular",
-    "payment_note": "Pay with USDC on Ethereum or other popular networks. One-time payment for a full year, no auto-renew, and no token approvals needed.",
+    "payment_note": "Pay with USDC or USDT on Ethereum or other popular networks. One-time payment for a full year, no auto-renew, and no token approvals needed.",
     "per_year": "/year",
     "subscriber_banner": {
       "description": "Your connected wallet has an active {tier} subscription.",

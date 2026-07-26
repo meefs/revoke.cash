@@ -7,7 +7,7 @@ import type { ProcessRefundOutcome } from '@revoke.cash/core/premium/refunds';
 // what is specific to the action.
 export interface AuditActionDetails {
   signed_in: Record<string, never>;
-  payment_created: { paymentId: string; planId: string; amountUsdCents: number };
+  payment_created: { paymentId: string; planId: string; tokenSymbol: string; amountUsdCents: number };
   refund_requested: { refundRequestId: string; paymentId: string };
   subscription_address_added: Record<string, never>;
   subscription_address_removed: Record<string, never>;

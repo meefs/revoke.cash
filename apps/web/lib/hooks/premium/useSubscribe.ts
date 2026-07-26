@@ -2,11 +2,7 @@
 
 import { ERC20_ABI } from '@revoke.cash/core/abis';
 import { createViemPublicClientForChain, getChainName } from '@revoke.cash/core/chains';
-import {
-  isSupportedPaymentChainId,
-  PAYMENT_CONFIG_BY_CHAIN_ID,
-  usdCentsToTokenUnits,
-} from '@revoke.cash/core/premium/payment-config';
+import { type PaymentToken, usdCentsToTokenUnits } from '@revoke.cash/core/premium/payment-config';
 import type { PaymentStatus, PendingPayment, PremiumPlan } from '@revoke.cash/core/premium/types';
 import { delay } from '@revoke.cash/core/utils';
 import { parseErrorMessage } from '@revoke.cash/core/utils/errors';
@@ -29,6 +25,7 @@ interface UseSubscribeParams {
   ownerAddress: Address;
   selectedPlan: PremiumPlan | null;
   selectedPaymentChainId: number;
+  selectedPaymentToken: PaymentToken | null;
 }
 
 const PENDING_PAYMENT_STORAGE_KEY = 'revoke_pending_payment';
@@ -86,14 +83,12 @@ const hasSufficientTokenBalance = async (
   ownerAddress: Address,
   plan: PremiumPlan,
   chainId: number,
+  paymentToken: PaymentToken,
 ): Promise<boolean> => {
-  if (!isSupportedPaymentChainId(chainId)) return true;
-
-  const paymentConfig = PAYMENT_CONFIG_BY_CHAIN_ID[chainId];
   const publicClient = createViemPublicClientForChain(chainId);
   const balance = await withFallback(
     publicClient.readContract({
-      address: paymentConfig.token.address,
+      address: paymentToken.address,
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [ownerAddress],
@@ -102,7 +97,7 @@ const hasSufficientTokenBalance = async (
   );
 
   if (balance === null) return true;
-  return balance >= usdCentsToTokenUnits(plan.priceUsdCents, paymentConfig.token.decimals);
+  return balance >= usdCentsToTokenUnits(plan.priceUsdCents, paymentToken.decimals);
 };
 
 const pollPaymentStatus = async (paymentId: string, expiresAt: number): Promise<PaymentStatus> => {
@@ -124,7 +119,12 @@ const pollPaymentStatus = async (paymentId: string, expiresAt: number): Promise<
   return poll();
 };
 
-export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainId }: UseSubscribeParams) => {
+export const useSubscribe = ({
+  ownerAddress,
+  selectedPlan,
+  selectedPaymentChainId,
+  selectedPaymentToken,
+}: UseSubscribeParams) => {
   const t = useTranslations();
   const queryClient = useQueryClient();
   const { ensureWalletClient } = useEnsureWalletClient();
@@ -159,7 +159,7 @@ export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainI
 
   const subscribeMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedPlan) throw new Error(t('account.subscription.payment_failed'));
+      if (!selectedPlan || !selectedPaymentToken) throw new Error(t('account.subscription.payment_failed'));
 
       const pendingPayment = loadPendingPayment(ownerAddress);
       if (pendingPayment) {
@@ -176,24 +176,33 @@ export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainI
       // Step 1: Create payment
       setStatus('creating');
 
-      if (!(await hasSufficientTokenBalance(ownerAddress, selectedPlan, selectedPaymentChainId))) {
+      if (
+        !(await hasSufficientTokenBalance(ownerAddress, selectedPlan, selectedPaymentChainId, selectedPaymentToken))
+      ) {
         throw new Error(
           t('account.subscription.insufficient_balance', {
             amount: selectedPlan.priceUsdCents / 100,
-            token: selectedPlan.tokenSymbol,
+            token: selectedPaymentToken.symbol,
             chainName: getChainName(selectedPaymentChainId),
           }),
         );
       }
 
       const payment = await ky
-        .post('/api/premium/payments', { json: { planId: selectedPlan.id, chainId: selectedPaymentChainId } })
+        .post('/api/premium/payments', {
+          json: {
+            planId: selectedPlan.id,
+            chainId: selectedPaymentChainId,
+            tokenSymbol: selectedPaymentToken.symbol,
+          },
+        })
         .json<PendingPayment>();
 
       analytics.track('Subscription Payment Created', {
         paymentId: payment.paymentId,
         planId: payment.planId,
         chainId: payment.chainId,
+        tokenSymbol: payment.token.symbol,
         amountUsd: payment.amountUsdCents / 100,
       });
 
@@ -223,6 +232,7 @@ export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainI
         paymentId: payment.paymentId,
         planId: payment.planId,
         chainId: payment.chainId,
+        tokenSymbol: payment.token.symbol,
         transactionHash: hash,
       });
 
@@ -239,7 +249,7 @@ export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainI
       if (finalStatus.status !== 'confirmed') {
         const errorMessage =
           finalStatus.status === 'expired'
-            ? t('account.subscription.payment_expired')
+            ? t('account.subscription.payment_expired', { token: payment.token.symbol })
             : t('account.subscription.payment_status_error', { status: finalStatus.status });
         throw new Error(errorMessage);
       }
@@ -248,6 +258,7 @@ export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainI
         paymentId: payment.paymentId,
         planId: payment.planId,
         chainId: payment.chainId,
+        tokenSymbol: payment.token.symbol,
         amountUsd: payment.amountUsdCents / 100,
       });
 
@@ -264,6 +275,7 @@ export const useSubscribe = ({ ownerAddress, selectedPlan, selectedPaymentChainI
       analytics.track('Subscription Payment Failed', {
         planId: selectedPlan?.id,
         chainId: selectedPaymentChainId,
+        tokenSymbol: selectedPaymentToken?.symbol,
         error: parseErrorMessage(error),
       });
     },

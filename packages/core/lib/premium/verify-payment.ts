@@ -8,7 +8,8 @@ import { trackServerEvent } from '@revoke.cash/core/utils/analytics';
 import { HOUR } from '@revoke.cash/core/utils/time';
 import { and, eq, gt, inArray, ne, or } from 'drizzle-orm';
 import { type Address, getAbiItem, type Hash, toEventSelector } from 'viem';
-import { getPaymentConfig, PREMIUM_LATE_SETTLEMENT_HOURS, usdCentsToTokenUnits } from './payment-config';
+import { SUBSCRIPTIONS_ADDRESS } from '../constants';
+import { isSupportedPaymentChainId, PREMIUM_LATE_SETTLEMENT_HOURS, usdCentsToTokenUnits } from './payment-config';
 import {
   getPaymentForOwner,
   type PaymentStatusResponse,
@@ -119,13 +120,12 @@ export const reconcilePaymentByOwner = async (
       return { paymentId: payment.id, status: lockedPayment.status, matchedTxHash: lockedPayment.matchedTxHash };
     }
 
-    const paymentConfig = getPaymentConfig(payment.chainId);
-    if (!paymentConfig) {
+    if (!isSupportedPaymentChainId(payment.chainId)) {
       await setPaymentStatus(trx, { paymentId: payment.id, status: 'failed' });
       return { ...toPaymentStatusResponse(payment), status: 'failed' as const };
     }
 
-    const matchedTxHash = await findMatchingTransferTxHash(payment, ownerAddress, paymentConfig.paymentAddress);
+    const matchedTxHash = await findMatchingTransferTxHash(payment, ownerAddress, SUBSCRIPTIONS_ADDRESS);
     if (!matchedTxHash) {
       if (lockedPayment.status === 'pending' && payment.expiresAt.getTime() <= Date.now()) {
         await setPaymentStatus(trx, { paymentId: payment.id, status: 'expired' });

@@ -4,7 +4,8 @@ import { premiumPayments } from '@revoke.cash/core/db/schema/premium';
 import { HOUR } from '@revoke.cash/core/utils/time';
 import { and, eq, gte, inArray, isNotNull, lte, ne } from 'drizzle-orm';
 import { type Hash, TransactionReceiptNotFoundError } from 'viem';
-import { getPaymentConfig } from './payment-config';
+import { SUBSCRIPTIONS_ADDRESS } from '../constants';
+import { isSupportedPaymentChainId } from './payment-config';
 import type { PremiumPaymentRecord } from './payments';
 import { transitionPaymentAndRebuild } from './subscriptions';
 import { findMatchingTransferTxHash } from './verify-payment';
@@ -110,10 +111,9 @@ const isTransactionStillOnChain = async (chainId: number, txHash: Hash): Promise
 };
 
 const findReplacementTxHash = async (payment: PremiumPaymentRecord): Promise<Hash | null> => {
-  const paymentConfig = getPaymentConfig(payment.chainId);
-  if (!paymentConfig) return null;
+  if (!isSupportedPaymentChainId(payment.chainId)) return null;
 
-  const matchedTxHash = await findMatchingTransferTxHash(payment, payment.ownerAddress, paymentConfig.paymentAddress);
+  const matchedTxHash = await findMatchingTransferTxHash(payment, payment.ownerAddress, SUBSCRIPTIONS_ADDRESS);
   if (!matchedTxHash) return null;
 
   // A transfer already credited to another payment cannot be reused (unique index on the hash)

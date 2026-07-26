@@ -10,7 +10,6 @@ export interface PremiumPlan {
   version: number;
   name: string;
   priceUsdCents: number;
-  tokenSymbol: 'USDC';
   supportedChainIds: readonly number[];
   maxAddresses: number;
   durationDays: number;
@@ -25,7 +24,6 @@ const mapPlanRecord = (plan: PremiumPlanRecord): PremiumPlan => {
     name: plan.name,
     version: plan.version,
     priceUsdCents: plan.priceUsdCents,
-    tokenSymbol: 'USDC',
     supportedChainIds: PREMIUM_PAYMENT_CHAIN_IDS,
     maxAddresses: plan.maxAddresses,
     durationDays: plan.durationDays,

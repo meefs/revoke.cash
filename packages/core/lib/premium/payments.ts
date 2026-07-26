@@ -5,8 +5,10 @@ import { ExportableError } from '@revoke.cash/core/utils/errors';
 import { MINUTE } from '@revoke.cash/core/utils/time';
 import { and, count, eq, gt } from 'drizzle-orm';
 import type { Address } from 'viem';
+import { SUBSCRIPTIONS_ADDRESS } from '../constants';
 import {
-  getPaymentConfig,
+  getPaymentToken,
+  type PaymentTokenSymbol,
   PREMIUM_MAX_PENDING_PAYMENTS_PER_USER,
   PREMIUM_PAYMENT_TTL_MINUTES,
   type PremiumPaymentChainId,
@@ -17,6 +19,7 @@ interface CreatePaymentParams {
   ownerAddress: Address;
   planId: string;
   chainId: number;
+  tokenSymbol: PaymentTokenSymbol;
   vatRegion: string | null;
 }
 
@@ -59,12 +62,12 @@ export const toPaymentStatusResponse = (payment: PremiumPaymentRecord): PaymentS
   matchedTxHash: payment.matchedTxHash,
 });
 
-export const createPayment = async ({ ownerAddress, planId, chainId, vatRegion }: CreatePaymentParams) => {
+export const createPayment = async ({ ownerAddress, planId, chainId, tokenSymbol, vatRegion }: CreatePaymentParams) => {
   const plan = await getPremiumPlanById(planId);
   if (!plan) throw new PremiumPaymentError('Unsupported premium plan');
 
-  const paymentConfig = getPaymentConfig(chainId);
-  if (!paymentConfig) throw new PremiumPaymentError('Unsupported payment chain');
+  const paymentToken = getPaymentToken(chainId, tokenSymbol);
+  if (!paymentToken) throw new PremiumPaymentError(`Unsupported payment token for this chain: ${tokenSymbol}`);
 
   const db = getDb();
 
@@ -101,9 +104,9 @@ export const createPayment = async ({ ownerAddress, planId, chainId, vatRegion }
       planVersion: plan.version,
       ownerAddress,
       chainId,
-      tokenAddress: paymentConfig.token.address,
-      tokenSymbol: paymentConfig.token.symbol,
-      tokenDecimals: paymentConfig.token.decimals,
+      tokenAddress: paymentToken.address,
+      tokenSymbol: paymentToken.symbol,
+      tokenDecimals: paymentToken.decimals,
       amountUsdCents: plan.priceUsdCents,
       status: 'pending',
       expiresAt,
@@ -121,8 +124,8 @@ export const createPayment = async ({ ownerAddress, planId, chainId, vatRegion }
     paymentId: insertedPayment.id,
     planId: plan.id,
     chainId: insertedPayment.chainId,
-    token: paymentConfig.token,
-    recipientAddress: paymentConfig.paymentAddress,
+    token: paymentToken,
+    recipientAddress: SUBSCRIPTIONS_ADDRESS,
     amountUsdCents: insertedPayment.amountUsdCents,
     expiresAt: insertedPayment.expiresAt.toISOString(),
   };

@@ -122,7 +122,7 @@
       "title": "Premium 定价"
     },
     "most_popular_label": "最受欢迎",
-    "payment_note": "使用 Ethereum 或其他主流网络上的 USDC 支付。一次性支付全年费用，不自动续订，也无需任何代币授权。",
+    "payment_note": "使用 Ethereum 或其他主流网络上的 USDC 或 USDT 支付。一次性支付全年费用，不自动续订，也无需任何代币授权。",
     "per_year": "/年",
     "subscriber_banner": {
       "description": "您连接的钱包已有生效中的 {tier} 订阅。",

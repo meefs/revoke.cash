@@ -122,7 +122,7 @@
       "title": "プレミアムの料金プラン"
     },
     "most_popular_label": "最も人気",
-    "payment_note": "Ethereumやその他の主要ネットワーク上のUSDCでお支払いいただけます。1年分の一括払いで、自動更新はなく、トークン承認も不要です。",
+    "payment_note": "Ethereumやその他の主要ネットワーク上のUSDCまたはUSDTでお支払いいただけます。1年分の一括払いで、自動更新はなく、トークン承認も不要です。",
     "per_year": "/年",
     "subscriber_banner": {
       "description": "接続中のウォレットには有効な{tier}サブスクリプションがあります。",
