@@ -64,6 +64,7 @@
     "system": "システム"
   },
   "connect_wallet": {
+    "failed": "接続できませんでした：{message}",
     "title": "ウォレットを接続する"
   },
   "errors": {

@@ -79,25 +79,22 @@ export const getConnectorName = (connector: Connector): string => {
 };
 
 export const filterAndSortConnectors = (connectors: readonly Connector[]) => {
-  const comparator = (a: Connector, b: Connector) => {
+  const getConnectorRank = (connector: Connector) => {
     // Sort MetaMask at the top
-    if (a.id === 'io.metamask') return -1;
-    if (b.id === 'io.metamask') return 1;
+    if (connector.id === 'io.metamask') return 0;
 
     // Sort other multi-provider discovered connectors next
-    if (a.id.includes('.')) return -1;
-    if (b.id.includes('.')) return -1;
+    if (connector.id.includes('.')) return 1;
 
     // Sort other injected connectors next
-    if (a.type === 'injected') return -1;
-    if (b.type === 'injected') return 1;
+    if (connector.type === 'injected') return 2;
 
-    return 0;
+    return 3;
   };
 
   return deduplicateArray(connectors, getConnectorName)
-    .filter((c) => c.id !== 'safe')
-    .sort(comparator);
+    .filter((connector) => connector.id !== 'safe')
+    .sort((a, b) => getConnectorRank(a) - getConnectorRank(b));
 };
 
 export const isMobileDevice = (): boolean => {

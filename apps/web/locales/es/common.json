@@ -64,6 +64,7 @@
     "system": "Sistema"
   },
   "connect_wallet": {
+    "failed": "No se pudo conectar: {message}",
     "title": "Conecta Tu Cartera"
   },
   "errors": {

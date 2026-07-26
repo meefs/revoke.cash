@@ -64,6 +64,7 @@
     "system": "Система"
   },
   "connect_wallet": {
+    "failed": "Не удалось подключиться: {message}",
     "title": "Подключите кошелек"
   },
   "errors": {

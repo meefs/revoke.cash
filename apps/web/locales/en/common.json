@@ -64,6 +64,7 @@
     "system": "System"
   },
   "connect_wallet": {
+    "failed": "Couldn't connect: {message}",
     "title": "Connect Your Wallet"
   },
   "errors": {

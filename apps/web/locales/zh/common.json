@@ -64,6 +64,7 @@
     "system": "系统"
   },
   "connect_wallet": {
+    "failed": "无法连接：{message}",
     "title": "连接钱包"
   },
   "errors": {
