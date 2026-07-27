@@ -45,6 +45,9 @@ const AutomatedRevokingPageContent = () => {
         <p className="mx-auto max-w-3xl text-center text-base leading-7 text-zinc-600 dark:text-zinc-400">
           {t('premium.automated_revoking.wallets.description')}
         </p>
+        <p className="mx-auto max-w-3xl text-center text-base leading-7 text-zinc-600 dark:text-zinc-400">
+          {t('premium.automated_revoking.wallets.list_intro')}
+        </p>
         <div className="flex flex-wrap justify-center gap-3">
           {SUPPORTED_WALLETS.map((wallet) => (
             <div

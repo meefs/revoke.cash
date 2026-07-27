@@ -544,6 +544,9 @@ export const CHAINS = {
     coingeckoNetworkId: 'flare',
     logoUrl: '/assets/images/vendor/chains/flare.svg',
     etherscanCompatibleApiUrl: 'https://flare-explorer.flare.network/api',
+    rpc: {
+      main: `https://lb.drpc.live/flare/${DRPC_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 3002461 } },
   }),
   [ChainId.FlowEVMMainnet]: new Chain({

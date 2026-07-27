@@ -5,6 +5,7 @@ import { useAccountSubscriptions } from 'lib/hooks/premium/useAccountSubscriptio
 import { useTranslations } from 'next-intl';
 import { twMerge } from 'tailwind-merge';
 import AutoRevokeSection from '../auto-revoke/AutoRevokeSection';
+import AutoRevokeSupportBanner from '../auto-revoke/AutoRevokeSupportBanner';
 import AutoRevokeUpsellBanner from '../auto-revoke/AutoRevokeUpsellBanner';
 import AutoRevokeActivitySection from '../auto-revoke/activity/AutoRevokeActivitySection';
 
@@ -26,6 +27,7 @@ const AutoRevokeTab = () => {
   return (
     <div className="w-full flex flex-col gap-4">
       {isPreview && <AutoRevokeUpsellBanner />}
+      <AutoRevokeSupportBanner />
       <div inert={isPreview} className={twMerge('flex flex-col gap-4', isPreview && 'opacity-60')}>
         <AutoRevokeSection activeSubscription={activeUltimateSubscription} account={account!} isPreview={isPreview} />
         <AutoRevokeActivitySection

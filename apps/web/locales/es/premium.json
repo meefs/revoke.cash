@@ -42,7 +42,8 @@
     },
     "title": "Cómo funciona la revocación automática",
     "wallets": {
-      "description": "La revocación automática funciona con cualquier cartera que admita los permisos ERC-7715. Para conceder estos permisos es necesario actualizar tu cartera a una smart account ERC-7702. Actualmente se sabe que estas carteras los admiten, y se irán añadiendo más a medida que se vaya adoptando el estándar:"
+      "description": "La revocación automática funciona con cualquier cartera que admita los permisos ERC-7715. Para conceder estos permisos es necesario actualizar tu cartera a una smart account ERC-7702. Esto no es posible para las cuentas de carteras de hardware como Ledger y Trezor, ni siquiera cuando se conectan a través de una cartera compatible.",
+      "list_intro": "Actualmente se sabe que las siguientes carteras admiten la revocación automática, y se irán añadiendo más a medida que se vaya adoptando el estándar:"
     }
   },
   "pricing": {
@@ -63,7 +64,7 @@
         "question": "¿Qué pasa cuando caduca mi suscripción?"
       },
       "supported_wallets": {
-        "answer": "La revocación automática es una función Ultimate que funciona con MetaMask y algunas otras carteras que admiten el estándar ERC-7715, en {count} redes compatibles, incluyendo Ethereum, Polygon, Base y más. <link>Ver la lista completa de carteras y redes compatibles</link>.",
+        "answer": "La revocación automática es una función Ultimate que funciona con MetaMask y algunas otras carteras que admiten el estándar ERC-7715, en {count} redes compatibles, incluyendo Ethereum, Polygon, Base y más. Las cuentas de carteras de hardware como Ledger y Trezor no son compatibles. <link>Ver la lista completa de carteras y redes compatibles</link>.",
         "question": "¿Qué carteras y redes admiten la revocación automática?"
       },
       "title": "Preguntas Frecuentes"

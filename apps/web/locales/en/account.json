@@ -103,6 +103,8 @@
       "banner_cta": "Set it up",
       "get_started": "Auto-Revoking is not active for this wallet yet. Toggle the networks you want protected below. Every wallet in the subscription needs to do this once, using MetaMask."
     },
+    "smart_account_required": "Auto-Revoking is not supported for hardware wallet accounts such as Ledger. Please connect a different account to use this feature.",
+    "smart_account_unsupported": "This account does not support Auto-Revoking",
     "title": "Auto-Revoking",
     "upsell": "Auto-Revoking automatically revokes dangerous or stale approvals on your behalf. It requires an Ultimate subscription."
   },
@@ -231,6 +233,7 @@
     "slots_summary": "{used}/{max} wallet {max, plural, =1 {slot} other {slots}} used",
     "title": "Premium Subscription",
     "ultimate_requires_metamask": "Auto-Revoking requires MetaMask. You can pay with any wallet, and set up Auto-Revoking afterwards by connecting with MetaMask.",
+    "ultimate_requires_smart_account": "Auto-Revoking is not supported for hardware wallet accounts such as Ledger. You can still pay with this wallet, and set up Auto-Revoking afterwards with a different account.",
     "valid_until": "Valid until {date}",
     "wallet": "Wallet",
     "wrong_wallet_error": "The payment must be sent from {address}. Please switch to that wallet and try again."

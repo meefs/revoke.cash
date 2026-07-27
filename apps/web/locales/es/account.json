@@ -103,6 +103,8 @@
       "banner_cta": "Configúrala",
       "get_started": "La Revocación automática aún no está activa para esta cartera. Activa abajo las redes que quieres proteger. Cada cartera de la suscripción debe hacer esto una vez, usando MetaMask."
     },
+    "smart_account_required": "La Revocación automática no es compatible con cuentas de carteras de hardware como Ledger. Por favor, conéctate con una cuenta diferente para usar esta función.",
+    "smart_account_unsupported": "Esta cuenta no admite la Revocación automática",
     "title": "Revocación automática",
     "upsell": "La función Revocación automática revoca automáticamente, en tu nombre, las aprobaciones peligrosas u obsoletas. Requiere una suscripción Ultimate."
   },
@@ -231,6 +233,7 @@
     "slots_summary": "{used}/{max} {max, plural, =1 {espacio de cartera usado} other {espacios de cartera usados}}",
     "title": "Suscripción Premium",
     "ultimate_requires_metamask": "La Revocación automática requiere MetaMask. Puedes pagar con cualquier cartera y configurar la Revocación automática después conectándote con MetaMask.",
+    "ultimate_requires_smart_account": "La Revocación automática no es compatible con cuentas de carteras de hardware como Ledger. Aun así puedes pagar con esta cartera y configurar la Revocación automática después con una cuenta diferente.",
     "valid_until": "Válida hasta {date}",
     "wallet": "Cartera",
     "wrong_wallet_error": "El pago debe enviarse desde {address}. Por favor cambia a esa cartera y vuelve a intentarlo."

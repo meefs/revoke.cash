@@ -103,6 +103,8 @@
       "banner_cta": "立即设置",
       "get_started": "此钱包尚未启用自动撤销。请在下方开启您想要保护的网络。订阅中的每个钱包都需要使用 MetaMask 完成一次此设置。"
     },
+    "smart_account_required": "自动撤销不支持 Ledger 等硬件钱包账户。请连接其他账户以使用此功能。",
+    "smart_account_unsupported": "此账户不支持自动撤销",
     "title": "自动撤销",
     "upsell": "自动撤销会代您自动撤销危险或陈旧的授权。此功能需要 Ultimate 订阅。"
   },
@@ -231,6 +233,7 @@
     "slots_summary": "已使用 {used}/{max} 个钱包名额",
     "title": "Premium 订阅",
     "ultimate_requires_metamask": "自动撤销需要 MetaMask。您可以使用任意钱包付款，之后再连接 MetaMask 设置自动撤销。",
+    "ultimate_requires_smart_account": "自动撤销不支持 Ledger 等硬件钱包账户。您仍可使用此钱包付款，之后再用其他账户设置自动撤销。",
     "valid_until": "有效期至 {date}",
     "wallet": "钱包",
     "wrong_wallet_error": "付款必须从 {address} 发送。请切换到该钱包后重试。"

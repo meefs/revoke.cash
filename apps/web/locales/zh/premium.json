@@ -42,7 +42,8 @@
     },
     "title": "自动撤销的工作原理",
     "wallets": {
-      "description": "自动撤销适用于任何支持 ERC-7715 权限的钱包。授予这些权限需要将您的钱包升级为 ERC-7702 智能账户。目前已知支持该标准的钱包如下，随着标准逐步得到采用，还会有更多钱包加入："
+      "description": "自动撤销适用于任何支持 ERC-7715 权限的钱包。授予这些权限需要将您的钱包升级为 ERC-7702 智能账户。Ledger、Trezor 等硬件钱包账户无法升级，即使通过受支持的钱包连接也是如此。",
+      "list_intro": "目前已知支持自动撤销的钱包如下，随着标准逐步得到采用，还会有更多钱包加入："
     }
   },
   "pricing": {
@@ -63,7 +64,7 @@
         "question": "订阅到期后会发生什么？"
       },
       "supported_wallets": {
-        "answer": "自动撤销是 Ultimate 专属功能，支持在 MetaMask 及部分其他支持 ERC-7715 标准的钱包上使用，覆盖 Ethereum、Polygon、Base 等 {count} 个受支持的网络。<link>查看受支持钱包和网络的完整列表</link>。",
+        "answer": "自动撤销是 Ultimate 专属功能，支持在 MetaMask 及部分其他支持 ERC-7715 标准的钱包上使用，覆盖 Ethereum、Polygon、Base 等 {count} 个受支持的网络。Ledger、Trezor 等硬件钱包账户不受支持。<link>查看受支持钱包和网络的完整列表</link>。",
         "question": "哪些钱包和网络支持自动撤销？"
       },
       "title": "常见问题"

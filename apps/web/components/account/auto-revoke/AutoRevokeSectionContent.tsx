@@ -7,13 +7,12 @@ import Divider from 'components/common/Divider';
 import Href from 'components/common/Href';
 import NoticeBanner from 'components/common/NoticeBanner';
 import type { useAddressAutoRevokeRules } from 'lib/hooks/auto-revoke/useAutoRevokeRules';
-import { useErc7715Support } from 'lib/hooks/auto-revoke/useErc7715Support';
+import { useAutoRevokeSupport } from 'lib/hooks/auto-revoke/useAutoRevokeSupport';
 import { useTranslations } from 'next-intl';
 import { type Address, isAddressEqual } from 'viem';
 import AutoRevokePermissions from './AutoRevokePermissions';
 import AutoRevokeRulesEditor from './AutoRevokeRulesEditor';
 import AutoRevokeRulesSourceSelect from './AutoRevokeRulesSourceSelect';
-import MetaMaskRequiredBanner from './MetaMaskRequiredBanner';
 
 interface Props {
   account: Address;
@@ -37,7 +36,7 @@ const AutoRevokeSectionContent = ({
   isPreview = false,
 }: Props) => {
   const t = useTranslations();
-  const { supportsErc7715 } = useErc7715Support();
+  const { supportsAutoRevoke } = useAutoRevokeSupport();
 
   const isUsingSubscriptionDefaults = !isAdmin && addressRules.rulesSource?.type === 'subscription';
 
@@ -52,9 +51,7 @@ const AutoRevokeSectionContent = ({
 
   return (
     <div className="flex flex-col gap-4">
-      {!supportsErc7715 && !isPreview && <MetaMaskRequiredBanner />}
-
-      {connectedWalletNeedsSetup && !isPreview && (
+      {connectedWalletNeedsSetup && supportsAutoRevoke && !isPreview && (
         <NoticeBanner
           style="info"
           action={

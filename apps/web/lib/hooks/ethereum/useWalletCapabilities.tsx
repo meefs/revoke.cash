@@ -1,28 +1,9 @@
 import { isNullish } from '@revoke.cash/core/utils';
-import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { Capabilities } from 'viem';
-import { useWalletClient } from 'wagmi';
+import { useAccountCapabilities } from './useAccountCapabilities';
 
 export const useWalletCapabilities = (chainId: number) => {
-  const { data: walletClient } = useWalletClient();
-
-  const { data: capabilities, isLoading } = useQuery({
-    queryKey: ['wallet-capabilities', walletClient?.key],
-    queryFn: async () => {
-      if (!walletClient) return null;
-
-      try {
-        const capabilities = (await walletClient.getCapabilities()) as Capabilities;
-        console.log('Wallet supports EIP5792:', capabilities);
-        return capabilities;
-      } catch {
-        console.log('Wallet does not support EIP5792');
-        return null;
-      }
-    },
-    enabled: !isNullish(walletClient),
-  });
+  const { capabilities, isLoading } = useAccountCapabilities();
 
   const supportsEip5792 = useMemo(() => {
     if (isLoading) return null;

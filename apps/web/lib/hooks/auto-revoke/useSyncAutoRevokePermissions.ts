@@ -9,17 +9,17 @@ import ky from 'lib/ky';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
 import { useConnectorClient } from 'wagmi';
-import { useErc7715Support } from './useErc7715Support';
+import { getSupportErrorKey, useAutoRevokeSupport } from './useAutoRevokeSupport';
 
 export const useSyncAutoRevokePermissions = () => {
   const t = useTranslations();
   const { data: connectorClient } = useConnectorClient();
-  const { supportsErc7715 } = useErc7715Support();
+  const { supportsAutoRevoke, supportStatus } = useAutoRevokeSupport();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!connectorClient || !supportsErc7715) throw new Error(t('account.auto_revoke.metamask_not_connected'));
+      if (!connectorClient || !supportsAutoRevoke) throw new Error(t(getSupportErrorKey(supportStatus)));
 
       const walletClient = connectorClient.extend(erc7715ProviderActions());
 
@@ -55,6 +55,6 @@ export const useSyncAutoRevokePermissions = () => {
   return {
     syncPermissions: () => mutation.mutateAsync().catch(() => []),
     isSyncing: mutation.isPending,
-    supportsErc7715,
+    supportsAutoRevoke,
   };
 };

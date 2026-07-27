@@ -42,7 +42,8 @@
     },
     "title": "How Auto-Revoking Works",
     "wallets": {
-      "description": "Auto-Revoking works with any wallet that supports ERC-7715 permissions. Granting these permissions requires upgrading your wallet to an ERC-7702 smart account. These wallets are currently known to support it, and more will follow as the standard gets adopted:"
+      "description": "Auto-Revoking works with any wallet that supports ERC-7715 permissions. Granting these permissions requires upgrading your wallet to an ERC-7702 smart account. This is not possible for hardware wallet accounts such as Ledger and Trezor, even when connected through a supported wallet.",
+      "list_intro": "The following wallets are currently known to support automated revoking, and more will follow as the standard gets adopted:"
     }
   },
   "pricing": {
@@ -63,7 +64,7 @@
         "question": "What happens when my subscription expires?"
       },
       "supported_wallets": {
-        "answer": "Automated revoking is an Ultimate feature that works with MetaMask and select other wallets that support the ERC-7715 standard, on {count} supported networks including Ethereum, Polygon, Base, and more. <link>See the full list of supported wallets and networks</link>.",
+        "answer": "Automated revoking is an Ultimate feature that works with MetaMask and select other wallets that support the ERC-7715 standard, on {count} supported networks including Ethereum, Polygon, Base, and more. Hardware wallet accounts such as Ledger and Trezor are not supported. <link>See the full list of supported wallets and networks</link>.",
         "question": "What wallets and networks support auto-revoking?"
       },
       "title": "Frequently Asked Questions"

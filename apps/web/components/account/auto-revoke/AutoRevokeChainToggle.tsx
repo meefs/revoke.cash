@@ -9,6 +9,7 @@ interface Props {
   chainId: number;
   isGranted: boolean;
   isConnected: boolean;
+  isSupported: boolean;
   isPending: boolean;
   isPendingForThisChain: boolean;
   onToggle: (enabled: boolean) => void;
@@ -18,18 +19,21 @@ const AutoRevokeChainToggle = ({
   chainId,
   isGranted,
   isConnected,
+  isSupported,
   isPending,
   isPendingForThisChain,
   onToggle,
 }: Props) => {
   const t = useTranslations();
 
+  const disabledTooltipKey = getDisabledTooltipKey(isConnected, isSupported);
+
   const toggle = (
     <Toggle
       pending={isPendingForThisChain}
       checked={isGranted}
       onChange={onToggle}
-      disabled={isPending || !isConnected}
+      disabled={isPending || !isConnected || !isSupported}
       size="sm"
     />
   );
@@ -37,13 +41,15 @@ const AutoRevokeChainToggle = ({
   return (
     <div className="flex items-center justify-between gap-2 py-1.5 text-sm">
       <ChainDisplay chainId={chainId} logoSize={20} className="text-zinc-700 dark:text-zinc-300" />
-      {!isConnected ? (
-        <WithHoverTooltip tooltip={t('account.auto_revoke.permissions.connect_to_manage')}>{toggle}</WithHoverTooltip>
-      ) : (
-        toggle
-      )}
+      {disabledTooltipKey ? <WithHoverTooltip tooltip={t(disabledTooltipKey)}>{toggle}</WithHoverTooltip> : toggle}
     </div>
   );
+};
+
+const getDisabledTooltipKey = (isConnected: boolean, isSupported: boolean) => {
+  if (!isConnected) return 'account.auto_revoke.permissions.connect_to_manage';
+  if (!isSupported) return 'account.auto_revoke.smart_account_unsupported';
+  return null;
 };
 
 export default AutoRevokeChainToggle;
