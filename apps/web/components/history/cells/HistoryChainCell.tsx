@@ -7,9 +7,9 @@ interface Props {
 
 const HistoryChainCell = ({ chainId }: Props) => {
   return (
-    <div className="flex items-center gap-1.5 py-3.25 w-32">
+    <div className="flex items-center gap-1.5 py-3.25 w-fit">
       <ChainLogo chainId={chainId} size={24} />
-      <span>{getChainName(chainId)}</span>
+      <span className="whitespace-nowrap">{getChainName(chainId)}</span>
     </div>
   );
 };

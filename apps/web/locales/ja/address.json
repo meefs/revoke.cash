@@ -88,13 +88,22 @@
   },
   "history": {
     "approved": "承認済み",
+    "approved_transfer": "承認済みの転送",
     "cancelled_signatures": "取り消された署名",
+    "checking_transfers": "{count}件の転送で承認が使用されたかを引き続き確認しています。しばらくしてから再度ご確認ください。",
     "none_found": "承認履歴は見つかりませんでした",
     "revoked": "取り消し済み",
     "status_failed": "失敗",
     "status_loaded": "読み込み済み",
     "status_loading": "読み込み中",
-    "title": "承認履歴"
+    "title": "承認履歴",
+    "transfer_support_tooltip": "一部のネットワーク(zkSync Era、Abstract、Scrollなど)では、承認済みの転送の検出に対応していません。",
+    "upsell": {
+      "cta": "プレミアムを詳しく見る",
+      "description": "プレミアムでは、トークン承認を通じて実行された転送を、実際にトークンを動かした支出者とあわせて確認できます。",
+      "title": "どの承認が実際に使用されたかを確認"
+    },
+    "via_permit2": "Permit2経由"
   },
   "labels": {
     "account_types": {

@@ -88,13 +88,22 @@
   },
   "history": {
     "approved": "Aprobado",
+    "approved_transfer": "Transferencia Aprobada",
     "cancelled_signatures": "Firmas Canceladas",
+    "checking_transfers": "Seguimos comprobando el uso de aprobaciones en {count, plural, =1 {# transferencia} other {# transferencias}}. Vuelve a consultar más tarde.",
     "none_found": "No se ha encontrado ningún historial de aprobaciones",
     "revoked": "Revocado",
     "status_failed": "fallido",
     "status_loaded": "cargado",
     "status_loading": "cargando",
-    "title": "Historial de Aprobaciones"
+    "title": "Historial de Aprobaciones",
+    "transfer_support_tooltip": "La detección de Transferencias Aprobadas no está disponible en algunas redes, incluidas zkSync Era, Abstract y Scroll.",
+    "upsell": {
+      "cta": "Descubrir Premium",
+      "description": "Premium muestra las transferencias que se ejecutaron a través de tus aprobaciones de tokens, con el gastador exacto que las movió.",
+      "title": "Descubre qué aprobaciones se usaron realmente"
+    },
+    "via_permit2": "vía Permit2"
   },
   "labels": {
     "account_types": {

@@ -1,17 +1,19 @@
 import {
-  type ApprovalTokenEvent,
-  type Enriched,
   type EnrichedTokenEvent,
   isApprovalTokenEvent,
+  isApprovedTransferTokenEvent,
+  type TokenEvent,
+  TokenEventType,
 } from '@revoke.cash/core/events';
 import { sortTokenEventsChronologically } from '@revoke.cash/core/events/utils';
+import type { Address } from 'viem';
 
-export const getApprovalHistoryForChain = (events: EnrichedTokenEvent[] = []): Enriched<ApprovalTokenEvent>[] => {
-  const approvalEvents = events.filter(isApprovalTokenEvent);
-  if (approvalEvents.length === 0) return [];
+export const getHistoryEventsForChain = (events: EnrichedTokenEvent[] = []): EnrichedTokenEvent[] => {
+  const historyEvents = events.filter((event) => isApprovalTokenEvent(event) || isApprovedTransferTokenEvent(event));
+  return sortTokenEventsChronologically(historyEvents).reverse();
+};
 
-  // Events are already enriched: metadata attached, timestamps resolved, spam filtered,
-  // lone revokes removed, ERC721 spurious revokes filtered, oldSpender annotated.
-  // Just filter to approvals and sort.
-  return sortTokenEventsChronologically(approvalEvents).reverse() as Enriched<ApprovalTokenEvent>[];
+export const getHistoryEventSpenderAddress = (event: TokenEvent): Address | undefined => {
+  if (event.type === TokenEventType.APPROVAL_ERC721 && event.payload.oldSpender) return event.payload.oldSpender;
+  return event.payload.spender;
 };

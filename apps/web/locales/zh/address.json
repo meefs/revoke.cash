@@ -88,13 +88,22 @@
   },
   "history": {
     "approved": "已授权",
+    "approved_transfer": "授权转账",
     "cancelled_signatures": "已取消的签名",
+    "checking_transfers": "仍在检查 {count} 笔转账是否使用了授权。请稍后再来查看。",
     "none_found": "未找到授权历史记录",
     "revoked": "已撤销",
     "status_failed": "失败",
     "status_loaded": "已加载",
     "status_loading": "加载中",
-    "title": "授权历史"
+    "title": "授权历史",
+    "transfer_support_tooltip": "部分网络(包括 zkSync Era、Abstract 和 Scroll)不支持检测授权转账。",
+    "upsell": {
+      "cta": "了解 Premium",
+      "description": "Premium 会显示通过您的代币授权执行的转账，并标明实际转移代币的被授权人。",
+      "title": "查看哪些授权实际被使用过"
+    },
+    "via_permit2": "通过 Permit2"
   },
   "labels": {
     "account_types": {

@@ -29,6 +29,7 @@ export interface ChainAllowanceData {
   events: EnrichedTokenEvent[];
   totalValueAtRisk: number;
   lastChecked: string | null;
+  pendingTransferClassifications: number;
   isRefreshing: boolean;
   refreshError: Error | null;
   refetch: () => void;
@@ -92,6 +93,7 @@ export const usePremiumChainAllowanceData = ({
         events: dataResult?.data?.events ?? [],
         totalValueAtRisk,
         lastChecked: currentResult?.data?.state.checkedAt ?? null,
+        pendingTransferClassifications: dataResult?.data?.state.pendingTransferClassifications ?? 0,
         isRefreshing: !isHistorical && Boolean(currentResult?.isRefreshing),
         refreshError: !isHistorical ? (currentResult?.refreshError ?? null) : null,
         refetch,

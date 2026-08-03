@@ -365,6 +365,7 @@ const insertEventRowsChunked = async (trx: DatabaseTransaction, rows: EventsCach
           data: excluded(indexerEvents.data),
           timestamp: excluded(indexerEvents.timestamp),
           reorged: false,
+          classifiedAt: null,
         },
       }),
   );

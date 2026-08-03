@@ -22,6 +22,11 @@ import {
   TOKEN_METADATA_QUEUE_NAME,
   type TokenMetadataJobData,
 } from '@revoke.cash/backend/indexer/queues/token-metadata';
+import {
+  enqueueUnclassifiedTransferTransactions,
+  TRANSFER_DETAILS_QUEUE_NAME,
+  type TransferDetailsJobData,
+} from '@revoke.cash/backend/indexer/queues/transfer-details';
 import { GroupLimiterService } from '@revoke.cash/backend/queue/group-limiter.service';
 import {
   indexEvents,
@@ -29,6 +34,7 @@ import {
   recordEventsFailure,
   reduceEventsMaxBlockRangeAfterFailure,
 } from '@revoke.cash/core/indexer/events';
+import { isApprovedTransfersSupportedChain } from '@revoke.cash/core/transfers/config';
 import { parseErrorMessage } from '@revoke.cash/core/utils/errors';
 import type { Job, Queue } from 'bullmq';
 import type { Address } from 'viem';
@@ -46,6 +52,8 @@ export class EventsWorker extends WorkerHost {
     private readonly tokenMetadataQueue: Queue<TokenMetadataJobData>,
     @InjectQueue(SPENDER_METADATA_QUEUE_NAME)
     private readonly spenderMetadataQueue: Queue<SpenderMetadataJobData>,
+    @InjectQueue(TRANSFER_DETAILS_QUEUE_NAME)
+    private readonly transferDetailsQueue: Queue<TransferDetailsJobData>,
   ) {
     super();
   }
@@ -100,6 +108,21 @@ export class EventsWorker extends WorkerHost {
           error: parseErrorMessage(error),
         });
       });
+
+      if (isApprovedTransfersSupportedChain(chainId)) {
+        await enqueueUnclassifiedTransferTransactions(this.transferDetailsQueue, chainId, 'events', address).catch(
+          (error) => {
+            this.logger.warn({
+              event: 'transfer_details_enqueue_failed',
+              outcome: 'failed',
+              eventsScanId,
+              chainId,
+              address,
+              error: parseErrorMessage(error),
+            });
+          },
+        );
+      }
     }
 
     await this.allowancesQueue

@@ -211,7 +211,7 @@ export const CHAINS = {
     logoUrl: '/assets/images/vendor/chains/astar.svg',
     explorerUrl: 'https://blockscout.com/astar',
     rpc: {
-      main: 'https://evm.astar.network',
+      main: `https://astar-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       free: 'https://evm.astar.network',
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 761794 } },
@@ -386,6 +386,9 @@ export const CHAINS = {
     name: 'Boba',
     coingeckoNetworkId: 'boba',
     logoUrl: '/assets/images/vendor/chains/boba.jpg',
+    rpc: {
+      main: `https://boba-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 446859 } },
     isOpStack: true,
   }),
@@ -418,7 +421,8 @@ export const CHAINS = {
     coingeckoNetworkId: 'core',
     logoUrl: '/assets/images/vendor/chains/core.png',
     rpc: {
-      main: 'https://rpc.coredao.org',
+      main: `https://lb.drpc.live/core/${DRPC_API_KEY}`,
+      free: 'https://rpc.coredao.org',
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 11907934 } },
   }),
@@ -567,6 +571,9 @@ export const CHAINS = {
     nativeTokenCoingeckoId: 'frax-share',
     coingeckoNetworkId: 'fraxtal',
     logoUrl: '/assets/images/vendor/chains/fraxtal.svg',
+    rpc: {
+      main: `https://frax-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 0 } },
     isOpStack: true,
   }),
@@ -591,6 +598,9 @@ export const CHAINS = {
     nativeTokenCoingeckoId: 'gensyn',
     coingeckoNetworkId: 'gensyn',
     logoUrl: '/assets/images/vendor/chains/gensyn.svg',
+    rpc: {
+      main: `https://gensyn-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 0 } },
   }),
   [ChainId.Gnosis]: new Chain({
@@ -625,7 +635,8 @@ export const CHAINS = {
     etherscanCompatibleApiUrl: 'https://explorer.harmony.one/api',
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 24185753 } },
     rpc: {
-      main: 'https://api.harmony.one',
+      main: `https://lb.drpc.live/harmony-0/${DRPC_API_KEY}`,
+      free: 'https://api.harmony.one',
     },
   }),
   [ChainId.Hemi]: new Chain({
@@ -635,6 +646,9 @@ export const CHAINS = {
     coingeckoNetworkId: 'hemi',
     logoUrl: '/assets/images/vendor/chains/hemi.svg',
     etherscanCompatibleApiUrl: 'https://explorer.hemi.xyz/api',
+    rpc: {
+      main: `https://lb.drpc.live/hemi/${DRPC_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 0 } },
   }),
   [ChainId.HuobiECOChainMainnet]: new Chain({
@@ -804,6 +818,9 @@ export const CHAINS = {
     name: 'Lisk',
     coingeckoNetworkId: 'lisk',
     logoUrl: '/assets/images/vendor/chains/lisk.svg',
+    rpc: {
+      main: `https://lb.drpc.live/lisk/${DRPC_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 0 } },
     isOpStack: true,
   }),
@@ -895,6 +912,7 @@ export const CHAINS = {
     explorerUrl: 'https://monadscan.com',
     rpc: {
       main: `https://monad-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      traces: 'https://rpc.monad.xyz', // Alchemy's Monad transaction-hash index only covers the last few days
       free: 'https://rpc.monad.xyz',
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 9248132 } },
@@ -923,7 +941,8 @@ export const CHAINS = {
     logoUrl: '/assets/images/vendor/chains/morph.svg',
     etherscanCompatibleApiUrl: 'https://explorer-api.morphl2.io/api',
     rpc: {
-      main: 'https://rpc.morphl2.io',
+      main: `https://lb.drpc.live/morph/${DRPC_API_KEY}`,
+      free: 'https://rpc.morphl2.io',
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 3654913 } },
   }),
@@ -934,6 +953,9 @@ export const CHAINS = {
     nativeTokenCoingeckoId: 'neon',
     coingeckoNetworkId: 'neon-evm',
     logoUrl: '/assets/images/vendor/chains/neon.svg',
+    rpc: {
+      main: `https://lb.drpc.live/neon-evm/${DRPC_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 206545524 } },
   }),
   [ChainId.OasysMainnet]: new Chain({
@@ -1157,6 +1179,7 @@ export const CHAINS = {
     etherscanCompatibleApiUrl: 'https://shidoscan.net/api',
     rpc: {
       main: 'https://evm.shidoscan.net',
+      free: 'https://evm.shidoscan.net',
     },
   }),
   [ChainId.ShimmerEVM]: new Chain({
@@ -1243,7 +1266,8 @@ export const CHAINS = {
     coingeckoNetworkId: 'story',
     logoUrl: '/assets/images/vendor/chains/story.svg',
     rpc: {
-      main: 'https://mainnet.storyrpc.io',
+      main: `https://story-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      free: 'https://mainnet.storyrpc.io',
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 340998 } },
   }),
@@ -1266,7 +1290,8 @@ export const CHAINS = {
     logoUrl: '/assets/images/vendor/chains/tac.svg',
     explorerUrl: 'https://tac.blockscout.com',
     rpc: {
-      main: 'https://rpc.tac.build',
+      main: `https://lb.drpc.live/tac/${DRPC_API_KEY}`,
+      free: 'https://rpc.tac.build',
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 0 } },
   }),
@@ -1335,6 +1360,9 @@ export const CHAINS = {
     coingeckoNetworkId: 'tomochain',
     logoUrl: '/assets/images/vendor/chains/viction.svg',
     explorerUrl: 'https://viction.blockscout.com/',
+    rpc: {
+      main: `https://lb.drpc.live/viction/${DRPC_API_KEY}`,
+    },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 87169904 } },
   }),
   [ChainId.WorldChain]: new Chain({
@@ -1358,7 +1386,7 @@ export const CHAINS = {
     coingeckoNetworkId: 'xdc',
     logoUrl: '/assets/images/vendor/chains/xdc.svg',
     rpc: {
-      main: 'https://rpc.ankr.com/xdc',
+      main: `https://lb.drpc.live/xdc/${DRPC_API_KEY}`,
       free: 'https://rpc.ankr.com/xdc',
     },
   }),

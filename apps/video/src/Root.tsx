@@ -15,6 +15,7 @@ import { BatchRevokeShowcase } from './premium-showcase/BatchRevokeShowcase';
 import { ExploitCheckerShowcase } from './premium-showcase/ExploitCheckerShowcase';
 import { MultichainDashboardShowcase } from './premium-showcase/MultichainDashboardShowcase';
 import { TimeMachineShowcase } from './premium-showcase/TimeMachineShowcase';
+import { ColdcardExploitGraphic } from './tweet-graphics/ColdcardExploitGraphic';
 import { NoApprovalRiskGraphic } from './tweet-graphics/NoApprovalRiskGraphic';
 import './fonts';
 import './style.css';
@@ -126,6 +127,13 @@ export const Root = () => {
           width={1200}
           height={675}
           defaultProps={{ date: '23 July 2026' }}
+        />
+        <Still
+          id="ColdcardExploit"
+          component={ColdcardExploitGraphic}
+          width={1200}
+          height={675}
+          defaultProps={{ date: '31 July 2026' }}
         />
       </Folder>
     </>

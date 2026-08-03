@@ -82,6 +82,7 @@ export const indexerEvents = indexerSchema.table(
     timestamp: bigint('timestamp', { mode: 'number' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     reorged: boolean('reorged').notNull().default(false),
+    classifiedAt: timestamp('classified_at', { withTimezone: true }),
   },
   (table) => [
     primaryKey({
@@ -95,6 +96,44 @@ export const indexerEvents = indexerSchema.table(
     index('idx_events_unresolved_timestamps')
       .on(table.chainId, table.blockNumber)
       .where(sql`${table.timestamp} IS NULL`),
+    index('idx_events_unclassified_transfers')
+      .on(table.chainId, table.topic1)
+      .where(
+        sql`${table.classifiedAt} IS NULL AND ${table.topic0} = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'`,
+      ),
+  ],
+);
+
+export const indexerTransferClassificationEnum = indexerSchema.enum('transfer_classification', [
+  'approved',
+  'direct',
+  'signature_authorized',
+  'other',
+  'unknown',
+]);
+
+export const indexerTransferDetails = indexerSchema.table(
+  'transfer_details',
+  {
+    chainId: integer('chain_id').notNull(),
+    transactionHash: text('transaction_hash').notNull().$type<Hash>(),
+    logIndex: integer('log_index').notNull(),
+    spenderAddress: lowercaseAddress('spender_address'),
+    permit2Address: lowercaseAddress('permit2_address'),
+    selector: text('selector').$type<Hex>(),
+    classification: indexerTransferClassificationEnum('classification'),
+    error: text('error'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    primaryKey({
+      name: 'transfer_details_pkey',
+      columns: [table.chainId, table.transactionHash, table.logIndex],
+    }),
   ],
 );
 

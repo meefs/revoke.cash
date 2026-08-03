@@ -92,7 +92,7 @@ export class DatabaseLogsProvider implements LogsProvider {
 // The user's address sits in topic1 (Approvals, Transfers-from, Permit2 owner) or topic2 (Transfers-to).
 const extractUserAddressTopic = (filter: Filter): Hex | null => filter.topics[1] ?? filter.topics[2] ?? null;
 
-const formatDatabaseLog = (row: typeof indexerEvents.$inferSelect): Log => {
+export const formatDatabaseLog = (row: typeof indexerEvents.$inferSelect): Log => {
   return {
     address: row.address as Address,
     topics: [row.topic0, row.topic1, row.topic2, row.topic3].filter((topic) => !isNullish(topic)) as [Hex, ...Hex[]],

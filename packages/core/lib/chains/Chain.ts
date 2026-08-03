@@ -29,6 +29,7 @@ export interface ChainOptions {
   rpc?: {
     main?: string | string[];
     logs?: string;
+    traces?: string;
     free?: string;
   };
   deployedContracts?: DeployedContracts;
@@ -124,6 +125,10 @@ export class Chain {
 
   getLogsRpcUrl(): string {
     return this.options.rpc?.logs ?? this.getRpcUrl();
+  }
+
+  getTracesRpcUrl(): string {
+    return this.options.rpc?.traces ?? this.getRpcUrl();
   }
 
   getInfoUrl(): string | undefined {

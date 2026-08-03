@@ -16,6 +16,7 @@
       "!**/package.json",
       "!**/next-env.d.ts",
       "!**/drizzle",
+      "!.claude", // background-task worktrees contain full repo copies with their own biome config
       "!apps/video/public" // static render assets for videos, not user-facing markup
     ]
   },

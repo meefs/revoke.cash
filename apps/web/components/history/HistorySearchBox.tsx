@@ -1,7 +1,7 @@
 'use client';
 
 import { XCircleIcon } from '@heroicons/react/24/outline';
-import type { ApprovalTokenEvent, Enriched } from '@revoke.cash/core/events';
+import type { EnrichedTokenEvent } from '@revoke.cash/core/events';
 import type { Table } from '@tanstack/react-table';
 import Button from 'components/common/Button';
 import FocusTrap from 'components/common/FocusTrap';
@@ -20,9 +20,10 @@ import {
 } from 'react';
 import { ColumnId } from './columns';
 import HistoryChainMultiSelect from './HistoryChainMultiSelect';
+import HistoryEventTypeMultiSelect from './HistoryEventTypeMultiSelect';
 
 interface Props {
-  table: Table<Enriched<ApprovalTokenEvent>>;
+  table: Table<EnrichedTokenEvent>;
   isPremium?: boolean;
   ref?: Ref<HistorySearchBoxRef>;
 }
@@ -34,11 +35,13 @@ export interface HistorySearchBoxRef {
 const SPENDER_PREFIX = 'spender:';
 const TOKEN_PREFIX = 'token:';
 const CHAIN_PREFIX = 'chain:';
+const EVENT_PREFIX = 'event:';
 
 interface CategorisedTerms {
   spenderTerms: string[];
   tokenTerms: string[];
   chainTerms: string[];
+  eventTerms: string[];
   combinedTerms: string[];
 }
 
@@ -61,13 +64,16 @@ const parseSearchTerms = (searchTerm: string): CategorisedTerms => {
         } else if (lowerTerm.startsWith(CHAIN_PREFIX)) {
           const value = term.slice(CHAIN_PREFIX.length).trim();
           if (value) acc.chainTerms.push(value);
+        } else if (lowerTerm.startsWith(EVENT_PREFIX)) {
+          const value = term.slice(EVENT_PREFIX.length).trim();
+          if (value) acc.eventTerms.push(value);
         } else {
           acc.combinedTerms.push(term);
         }
 
         return acc;
       },
-      { spenderTerms: [], tokenTerms: [], chainTerms: [], combinedTerms: [] },
+      { spenderTerms: [], tokenTerms: [], chainTerms: [], eventTerms: [], combinedTerms: [] },
     );
 };
 
@@ -77,6 +83,7 @@ const HistorySearchBox = ({ table, isPremium = false, ref }: Props) => {
   const [searchValue, { flushWith }] = useDebouncedValue(inputValue, 200);
 
   const chainTerms = useMemo(() => parseSearchTerms(inputValue).chainTerms, [inputValue]);
+  const eventTerms = useMemo(() => parseSearchTerms(inputValue).eventTerms, [inputValue]);
 
   useImperativeHandle(ref, () => ({
     setInputValue,
@@ -102,9 +109,17 @@ const HistorySearchBox = ({ table, isPremium = false, ref }: Props) => {
       tableFilters.push({ id: ColumnId.CHAIN, value: categorisedTerms.chainTerms });
     }
 
+    if (categorisedTerms.eventTerms.length > 0) {
+      tableFilters.push({ id: ColumnId.EVENT_TYPE, value: categorisedTerms.eventTerms });
+    }
+
     const ignoreIds = Object.values(ColumnId).filter(
       (id) =>
-        id !== ColumnId.SPENDER && id !== ColumnId.ASSET && id !== ColumnId.COMBINED_SEARCH && id !== ColumnId.CHAIN,
+        id !== ColumnId.SPENDER &&
+        id !== ColumnId.ASSET &&
+        id !== ColumnId.COMBINED_SEARCH &&
+        id !== ColumnId.CHAIN &&
+        id !== ColumnId.EVENT_TYPE,
     );
 
     updateTableFilters(table, tableFilters, ignoreIds);
@@ -114,21 +129,31 @@ const HistorySearchBox = ({ table, isPremium = false, ref }: Props) => {
     setInputValue(event.target.value);
   }, []);
 
-  const handleChainTermsChange = useCallback(
-    (nextChainTerms: string[]) => {
-      const nonChainTerms = inputValue
+  const replacePrefixedTerms = useCallback(
+    (prefix: string, nextTerms: string[]) => {
+      const otherTerms = inputValue
         .split(',')
         .map((term) => term.trim())
         .filter(Boolean)
-        .filter((term) => !term.toLowerCase().startsWith(CHAIN_PREFIX));
+        .filter((term) => !term.toLowerCase().startsWith(prefix));
 
-      const chainSearchTerms = nextChainTerms.map((chainTerm) => `${CHAIN_PREFIX}${chainTerm}`);
-      const nextInput = [...nonChainTerms, ...chainSearchTerms].join(', ');
+      const prefixedTerms = nextTerms.map((term) => `${prefix}${term}`);
+      const nextInput = [...otherTerms, ...prefixedTerms].join(', ');
 
       setInputValue(nextInput);
       flushWith(nextInput);
     },
     [flushWith, inputValue],
+  );
+
+  const handleChainTermsChange = useCallback(
+    (nextChainTerms: string[]) => replacePrefixedTerms(CHAIN_PREFIX, nextChainTerms),
+    [replacePrefixedTerms],
+  );
+
+  const handleEventTermsChange = useCallback(
+    (nextEventTerms: string[]) => replacePrefixedTerms(EVENT_PREFIX, nextEventTerms),
+    [replacePrefixedTerms],
   );
 
   const resetButton = (
@@ -158,7 +183,10 @@ const HistorySearchBox = ({ table, isPremium = false, ref }: Props) => {
         {inputValue.trim().length > 0 && resetButton}
       </SearchBox>
       {isPremium ? (
-        <HistoryChainMultiSelect chainTerms={chainTerms} onChainTermsChange={handleChainTermsChange} />
+        <>
+          <HistoryEventTypeMultiSelect eventTerms={eventTerms} onEventTermsChange={handleEventTermsChange} />
+          <HistoryChainMultiSelect chainTerms={chainTerms} onChainTermsChange={handleChainTermsChange} />
+        </>
       ) : null}
     </div>
   );

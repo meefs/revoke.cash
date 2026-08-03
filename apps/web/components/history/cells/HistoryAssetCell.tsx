@@ -1,12 +1,12 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import type { ApprovalTokenEvent, Enriched } from '@revoke.cash/core/events';
+import type { EnrichedTokenEvent } from '@revoke.cash/core/events';
 import AssetDisplay from 'components/allowances/dashboard/cells/AssetDisplay';
 import Button from 'components/common/Button';
 import WithHoverTooltip from 'components/common/WithHoverTooltip';
 import { useTranslations } from 'next-intl';
 
 interface Props {
-  event: Enriched<ApprovalTokenEvent>;
+  event: EnrichedTokenEvent;
   onFilter?: (filterValue: string) => void;
 }
 
@@ -42,7 +42,7 @@ const HistoryAssetCell = ({ event, onFilter }: Props) => {
   );
 
   return (
-    <div className="flex items-center gap-2 py-1 w-48 lg:w-56">
+    <div className="flex items-center gap-2 py-1 w-fit">
       <div className="flex flex-col items-center py-2">
         <AssetDisplay asset={asset} />
       </div>

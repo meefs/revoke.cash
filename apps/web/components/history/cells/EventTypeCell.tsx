@@ -1,17 +1,30 @@
-import { type ApprovalTokenEvent, type Enriched, isCancelPermitEvent, isRevokeEvent } from '@revoke.cash/core/events';
+import {
+  type EnrichedTokenEvent,
+  isCancelPermitEvent,
+  isRevokeEvent,
+  isTransferTokenEvent,
+} from '@revoke.cash/core/events';
 import StatusLabel from 'components/common/StatusLabel';
 import { useTranslations } from 'next-intl';
 import { twMerge } from 'tailwind-merge';
 
 interface Props {
-  approvalEvent: Enriched<ApprovalTokenEvent>;
+  event: EnrichedTokenEvent;
 }
 
-const EventTypeCell = ({ approvalEvent }: Props) => {
+const EventTypeCell = ({ event }: Props) => {
   const t = useTranslations();
 
-  const isRevoked = isRevokeEvent(approvalEvent);
-  const isCancelPermit = isCancelPermitEvent(approvalEvent);
+  if (isTransferTokenEvent(event)) {
+    return (
+      <StatusLabel status="info" className="w-32 py-0.75">
+        {t('address.history.approved_transfer')}
+      </StatusLabel>
+    );
+  }
+
+  const isRevoked = isRevokeEvent(event);
+  const isCancelPermit = isCancelPermitEvent(event);
 
   const eventType = isCancelPermit
     ? t('address.history.cancelled_signatures')

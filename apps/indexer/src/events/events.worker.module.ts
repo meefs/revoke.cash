@@ -4,6 +4,7 @@ import { EVENTS_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/events';
 import { SPENDER_METADATA_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/spender-metadata';
 import { TIMESTAMPS_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/timestamps';
 import { TOKEN_METADATA_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/token-metadata';
+import { TRANSFER_DETAILS_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/transfer-details';
 import { QueueModule } from '@revoke.cash/backend/queue/queue.module';
 import { EventsWorker } from './events.worker';
 
@@ -17,6 +18,7 @@ import { EventsWorker } from './events.worker';
     QueueModule.register({ name: TIMESTAMPS_QUEUE_NAME }),
     QueueModule.register({ name: TOKEN_METADATA_QUEUE_NAME }),
     QueueModule.register({ name: SPENDER_METADATA_QUEUE_NAME }),
+    QueueModule.register({ name: TRANSFER_DETAILS_QUEUE_NAME }),
   ],
   providers: [EventsWorker],
 })

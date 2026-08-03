@@ -11,7 +11,7 @@ import { SECOND } from '@revoke.cash/core/utils/time';
 import { type Address, type Chain, maxUint160, type PublicClient } from 'viem';
 import { type AllowanceDerivationOptions, AllowanceType, type Permit2Erc20Allowance } from '.';
 
-export const PERMIT2_ADDRESS: Address = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
+export const PERMIT2_CANONICAL_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3' as const;
 
 export const getPermit2AllowancesFromApprovals = async (
   tokenAddress: Address,

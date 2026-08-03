@@ -88,13 +88,22 @@
   },
   "history": {
     "approved": "Одобрено",
+    "approved_transfer": "Одобренный перевод",
     "cancelled_signatures": "Отмененные подписи",
+    "checking_transfers": "Мы всё ещё проверяем {count, plural, one {# перевод} few {# перевода} many {# переводов} other {# перевода}} на использование одобрений. Загляните позже.",
     "none_found": "История одобрений не найдена",
     "revoked": "Отозвано",
     "status_failed": "ошибка",
     "status_loaded": "загружено",
     "status_loading": "загружается",
-    "title": "История одобрений"
+    "title": "История одобрений",
+    "transfer_support_tooltip": "Обнаружение одобренных переводов недоступно в некоторых сетях, включая zkSync Era, Abstract и Scroll.",
+    "upsell": {
+      "cta": "Узнать больше о Premium",
+      "description": "Premium показывает переводы, выполненные через ваши одобрения токенов, с указанием конкретного распорядителя, который их совершил.",
+      "title": "Узнайте, какие одобрения действительно использовались"
+    },
+    "via_permit2": "через Permit2"
   },
   "labels": {
     "account_types": {

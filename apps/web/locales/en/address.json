@@ -88,13 +88,22 @@
   },
   "history": {
     "approved": "Approved",
+    "approved_transfer": "Approved Transfer",
     "cancelled_signatures": "Cancelled Signatures",
+    "checking_transfers": "Still checking {count, plural, =1 {# transfer} other {# transfers}} for approval usage. Check back later.",
     "none_found": "No approval history found",
     "revoked": "Revoked",
     "status_failed": "failed",
     "status_loaded": "loaded",
     "status_loading": "loading",
-    "title": "Approval History"
+    "title": "Approval History",
+    "transfer_support_tooltip": "Approved Transfer detection is not supported on some networks, including zkSync Era, Abstract, and Scroll.",
+    "upsell": {
+      "cta": "Discover Premium",
+      "description": "Premium shows transfers that were executed through your token approvals, with the exact spender that moved them.",
+      "title": "See which approvals were actually used"
+    },
+    "via_permit2": "via Permit2"
   },
   "labels": {
     "account_types": {

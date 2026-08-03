@@ -2,9 +2,10 @@
 
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import WithHoverTooltip from 'components/common/WithHoverTooltip';
+import type { ReactNode } from 'react';
 
 interface Props {
-  tooltip: string;
+  tooltip: ReactNode;
 }
 
 const InformationIconTooltip = ({ tooltip }: Props) => {

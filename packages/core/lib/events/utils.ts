@@ -1,9 +1,14 @@
 import type { Log } from '@revoke.cash/core/events';
-import { deduplicateArray } from '@revoke.cash/core/utils';
+import { deduplicateArray, isNullish } from '@revoke.cash/core/utils';
 import { type Address, getAddress, type Hex, pad, slice } from 'viem';
 
 export const topicToAddress = (topic: Hex) => getAddress(slice(topic, 12));
 export const addressToTopic = (address: Address) => pad(address, { size: 32 }).toLowerCase() as Hex;
+
+export const selectorOf = (input: Hex | undefined): Hex | undefined => {
+  if (isNullish(input) || input.length < 10) return undefined;
+  return slice(input, 0, 4).toLowerCase() as Hex;
+};
 
 export const logSorterChronological = (a: Log, b: Log) => {
   if (a.blockNumber === b.blockNumber) {

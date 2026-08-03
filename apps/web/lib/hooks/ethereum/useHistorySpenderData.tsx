@@ -1,24 +1,19 @@
 'use client';
 
-import { type ApprovalTokenEvent, type Enriched, TokenEventType } from '@revoke.cash/core/events';
+import { getHistoryEventSpenderAddress } from '@revoke.cash/core/allowances/history';
+import type { EnrichedTokenEvent } from '@revoke.cash/core/events';
+import { isNullish } from '@revoke.cash/core/utils';
 import { useMemo } from 'react';
-import type { Address } from 'viem';
 import { getSpenderKey, type SpenderLookup, useSpenderData } from './useSpenderData';
 
-const getSpenderAddress = (event: Enriched<ApprovalTokenEvent>): Address => {
-  if (event.type === TokenEventType.APPROVAL_ERC721 && event.payload.oldSpender) {
-    return event.payload.oldSpender;
-  }
-  return event.payload.spender;
-};
-
-export const useAnnotateHistorySpenderData = (approvalHistory: Enriched<ApprovalTokenEvent>[] | undefined) => {
+export const useAnnotateHistorySpenderData = (approvalHistory: EnrichedTokenEvent[] | undefined) => {
   const spenderLookups = useMemo<SpenderLookup[]>(() => {
     if (!approvalHistory || approvalHistory.length === 0) return [];
 
-    return approvalHistory.map((event) => {
-      const spender = getSpenderAddress(event);
-      return { chainId: event.chainId, spender, initialData: event.payload.spenderData };
+    return approvalHistory.flatMap((event) => {
+      const spender = getHistoryEventSpenderAddress(event);
+      if (isNullish(spender)) return [];
+      return [{ chainId: event.chainId, spender, initialData: event.payload.spenderData }];
     });
   }, [approvalHistory]);
 
@@ -30,12 +25,14 @@ export const useAnnotateHistorySpenderData = (approvalHistory: Enriched<Approval
     return approvalHistory.map((event) => {
       if (event.payload.spenderData !== undefined) return event;
 
-      const spender = getSpenderAddress(event);
+      const spender = getHistoryEventSpenderAddress(event);
+      if (isNullish(spender)) return event;
+
       const spenderKey = getSpenderKey(event.chainId, spender);
       return {
         ...event,
         payload: { ...event.payload, spenderData: spenderData[spenderKey] },
-      } as Enriched<ApprovalTokenEvent>;
+      } as EnrichedTokenEvent;
     });
   }, [approvalHistory, spenderData]);
 };

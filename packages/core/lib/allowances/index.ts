@@ -28,6 +28,7 @@ export interface AddressData {
   state: {
     checkedAt: string | null;
     computedToBlock: number | null;
+    pendingTransferClassifications?: number;
   };
   allowances: TokenAllowanceData[];
   events: EnrichedTokenEvent[];

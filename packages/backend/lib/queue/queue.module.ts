@@ -16,7 +16,7 @@ export const DEFAULT_JOB_OPTIONS = {
 
 interface RegisterOptions {
   name: string;
-  limiter?: { groupId: string; maxConcurrent: number; overflow: OverflowBehavior };
+  limiter?: { groupId: string; maxConcurrent: number; overflow: OverflowBehavior; minTime?: number };
   jobOptions?: Partial<JobsOptions>;
 }
 

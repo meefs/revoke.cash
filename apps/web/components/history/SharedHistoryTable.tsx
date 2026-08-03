@@ -1,6 +1,6 @@
 'use client';
 
-import type { ApprovalTokenEvent, Enriched } from '@revoke.cash/core/events';
+import type { EnrichedTokenEvent } from '@revoke.cash/core/events';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -9,20 +9,22 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import Card, { CardTitle } from 'components/common/Card';
+import InformationIconTooltip from 'components/common/InformationIconTooltip';
 import Table from 'components/common/table/Table';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useRef } from 'react';
+import { type ReactNode, useCallback, useMemo, useRef } from 'react';
 import { ColumnId, columns, customFilterFns } from './columns';
 import HistorySearchBox, { type HistorySearchBoxRef } from './HistorySearchBox';
 
 interface Props {
-  approvalHistory?: Enriched<ApprovalTokenEvent>[];
+  approvalHistory?: EnrichedTokenEvent[];
   isLoading: boolean;
   error?: Error;
   isPremium?: boolean;
+  titleTooltip?: ReactNode;
 }
 
-const SharedHistoryTable = ({ approvalHistory, isLoading, error, isPremium = false }: Props) => {
+const SharedHistoryTable = ({ approvalHistory, isLoading, error, isPremium = false, titleTooltip }: Props) => {
   const t = useTranslations();
   const searchBoxRef = useRef<HistorySearchBoxRef>(null);
 
@@ -40,10 +42,10 @@ const SharedHistoryTable = ({ approvalHistory, isLoading, error, isPremium = fal
     data,
     columns,
     autoResetPageIndex: !isPremium,
-    getCoreRowModel: getCoreRowModel<Enriched<ApprovalTokenEvent>>(),
-    getSortedRowModel: getSortedRowModel<Enriched<ApprovalTokenEvent>>(),
-    getFilteredRowModel: getFilteredRowModel<Enriched<ApprovalTokenEvent>>(),
-    getPaginationRowModel: getPaginationRowModel<Enriched<ApprovalTokenEvent>>(),
+    getCoreRowModel: getCoreRowModel<EnrichedTokenEvent>(),
+    getSortedRowModel: getSortedRowModel<EnrichedTokenEvent>(),
+    getFilteredRowModel: getFilteredRowModel<EnrichedTokenEvent>(),
+    getPaginationRowModel: getPaginationRowModel<EnrichedTokenEvent>(),
     filterFns: customFilterFns,
     initialState: {
       pagination: {
@@ -60,8 +62,17 @@ const SharedHistoryTable = ({ approvalHistory, isLoading, error, isPremium = fal
     meta: { onFilter } as any,
   });
 
+  const title = titleTooltip ? (
+    <>
+      {t('address.history.title')}
+      <InformationIconTooltip tooltip={titleTooltip} />
+    </>
+  ) : (
+    t('address.history.title')
+  );
+
   return (
-    <Card header={<CardTitle title={t('address.history.title')} />} className="p-0">
+    <Card header={<CardTitle title={title} />} className="p-0">
       <HistorySearchBox ref={searchBoxRef} table={table} isPremium={isPremium} />
       <Table
         table={table}

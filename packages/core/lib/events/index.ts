@@ -103,6 +103,10 @@ export interface Erc20TransferEvent extends BaseTokenEvent {
     from: Address;
     to: Address;
     amount: bigint;
+    // These fields are set if the trace-classifier detects that it is an *approved* transfer
+    spender?: Address;
+    spenderData?: Nullable<SpenderRiskData>;
+    permit2Address?: Address;
   };
 }
 
@@ -112,6 +116,10 @@ export interface Erc721TransferEvent extends BaseTokenEvent {
     from: Address;
     to: Address;
     tokenId: bigint;
+    // These fields are set if the trace-classifier detects that it is an *approved* transfer
+    spender?: Address;
+    spenderData?: Nullable<SpenderRiskData>;
+    permit2Address?: Address;
   };
 }
 
@@ -125,6 +133,10 @@ export type EnrichedTokenEvent = Enriched<TokenEvent>;
 
 export const isTransferTokenEvent = (event: TokenEvent): event is TransferTokenEvent => {
   return event.type === TokenEventType.TRANSFER_ERC20 || event.type === TokenEventType.TRANSFER_ERC721;
+};
+
+export const isApprovedTransferTokenEvent = (event: TokenEvent): event is TransferTokenEvent => {
+  return isTransferTokenEvent(event) && !isNullish(event.payload.spender);
 };
 
 export const isApprovalTokenEvent = (event: TokenEvent): event is ApprovalTokenEvent => {

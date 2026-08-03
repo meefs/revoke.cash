@@ -92,6 +92,13 @@
       "when": 1785097345778,
       "tag": "0012_auto_revoke_stale_approval_default",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1785762753913,
+      "tag": "0013_indexer_transfer_details",
+      "breakpoints": true
     }
   ]
 }

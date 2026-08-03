@@ -1,4 +1,4 @@
-import { getApprovalHistoryForChain } from '@revoke.cash/core/allowances/history';
+import { getHistoryEventsForChain } from '@revoke.cash/core/allowances/history';
 import { getEventKey } from '@revoke.cash/core/events';
 import { isNullish } from '@revoke.cash/core/utils';
 import { HOUR } from '@revoke.cash/core/utils/time';
@@ -18,7 +18,7 @@ export const useApprovalHistory = () => {
     error: historyError,
   } = useQuery({
     queryKey: ['approvalHistory', address, selectedChainId, events?.map(getEventKey)],
-    queryFn: () => getApprovalHistoryForChain(events ?? []),
+    queryFn: () => getHistoryEventsForChain(events ?? []),
     enabled: !isNullish(events) && !eventsLoading,
     staleTime: 1 * HOUR,
   });

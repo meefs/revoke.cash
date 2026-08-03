@@ -9,6 +9,7 @@ import { REDIS_CONNECTION } from '../redis/redis.module';
 export const GROUP_LIMITER_GROUP_ID = Symbol('GROUP_LIMITER_GROUP_ID');
 export const GROUP_LIMITER_MAX_CONCURRENT = Symbol('GROUP_LIMITER_MAX_CONCURRENT');
 export const GROUP_LIMITER_OVERFLOW_BEHAVIOR = Symbol('GROUP_LIMITER_OVERFLOW_BEHAVIOR');
+export const GROUP_LIMITER_MIN_TIME = Symbol('GROUP_LIMITER_MIN_TIME');
 
 // 'drop' drops the job entirely, 'queue' keeps the job in-memory in bottleneck's queue, 'delay' delays the job using BullMQ's moveToDelayed method
 export type OverflowBehavior = 'drop' | 'queue' | 'delay';
@@ -36,6 +37,7 @@ export class GroupLimiterService {
     @Inject(GROUP_LIMITER_GROUP_ID) groupId: string,
     @Inject(GROUP_LIMITER_MAX_CONCURRENT) maxConcurrent: number,
     @Inject(GROUP_LIMITER_OVERFLOW_BEHAVIOR) overflow: OverflowBehavior,
+    @Inject(GROUP_LIMITER_MIN_TIME) minTime: number,
   ) {
     const connection = new Bottleneck.IORedisConnection({ client: redis });
     this.overflow = overflow;
@@ -43,6 +45,7 @@ export class GroupLimiterService {
     const rejectAtCapacity = overflow === 'drop' || overflow === 'delay';
     this.group = new Bottleneck.Group({
       maxConcurrent,
+      minTime,
       ...(rejectAtCapacity ? { highWater: 0, strategy: Bottleneck.strategy.OVERFLOW } : {}),
       datastore: 'ioredis',
       connection,

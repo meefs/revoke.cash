@@ -12,6 +12,7 @@ import { EVENTS_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/events';
 import { SPENDER_METADATA_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/spender-metadata';
 import { TIMESTAMPS_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/timestamps';
 import { TOKEN_METADATA_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/token-metadata';
+import { TRANSFER_DETAILS_QUEUE_NAME } from '@revoke.cash/backend/indexer/queues/transfer-details';
 import { QueueModule } from '@revoke.cash/backend/queue/queue.module';
 import expressBasicAuth from 'express-basic-auth';
 import { AllowancesSchedulerModule } from '../allowances/allowances.scheduler.module';
@@ -19,6 +20,7 @@ import { EventsSchedulerModule } from '../events/events.scheduler.module';
 import { SpenderMetadataSchedulerModule } from '../spender-metadata/spender-metadata.scheduler.module';
 import { TimestampsSchedulerModule } from '../timestamps/timestamps.scheduler.module';
 import { TokenMetadataSchedulerModule } from '../token-metadata/token-metadata.scheduler.module';
+import { TransferDetailsSchedulerModule } from '../transfer-details/transfer-details.scheduler.module';
 
 const BULL_BOARD_ROUTE = '/queues';
 
@@ -29,6 +31,7 @@ const BULL_BOARD_ROUTE = '/queues';
     AllowancesSchedulerModule,
     TokenMetadataSchedulerModule,
     SpenderMetadataSchedulerModule,
+    TransferDetailsSchedulerModule,
     QueueModule.register({ name: AUTO_REVOKE_EXPLOIT_QUEUE_NAME }),
     QueueModule.register({ name: AUTO_REVOKE_EVALUATE_QUEUE_NAME }),
     QueueModule.register({ name: AUTO_REVOKE_EXECUTE_QUEUE_NAME }),
@@ -47,6 +50,7 @@ const BULL_BOARD_ROUTE = '/queues';
       { name: ALLOWANCES_QUEUE_NAME, adapter: BullMQAdapter, options: { displayName: 'Allowances' } },
       { name: TOKEN_METADATA_QUEUE_NAME, adapter: BullMQAdapter, options: { displayName: 'Token Metadata' } },
       { name: SPENDER_METADATA_QUEUE_NAME, adapter: BullMQAdapter, options: { displayName: 'Spender Metadata' } },
+      { name: TRANSFER_DETAILS_QUEUE_NAME, adapter: BullMQAdapter, options: { displayName: 'Transfer Details' } },
       { name: AUTO_REVOKE_EXPLOIT_QUEUE_NAME, adapter: BullMQAdapter, options: { displayName: 'Auto-Revoke Exploit' } },
       {
         name: AUTO_REVOKE_EVALUATE_QUEUE_NAME,

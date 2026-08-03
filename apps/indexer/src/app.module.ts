@@ -19,6 +19,8 @@ import { TimestampsSchedulerModule } from './timestamps/timestamps.scheduler.mod
 import { TimestampsWorkerModule } from './timestamps/timestamps.worker.module';
 import { TokenMetadataSchedulerModule } from './token-metadata/token-metadata.scheduler.module';
 import { TokenMetadataWorkerModule } from './token-metadata/token-metadata.worker.module';
+import { TransferDetailsSchedulerModule } from './transfer-details/transfer-details.scheduler.module';
+import { TransferDetailsWorkerModule } from './transfer-details/transfer-details.worker.module';
 
 @Module({})
 export class AppModule {
@@ -37,6 +39,7 @@ export class AppModule {
       isManager ? TimestampsSchedulerModule : TimestampsWorkerModule,
       isManager ? TokenMetadataSchedulerModule : TokenMetadataWorkerModule,
       isManager ? SpenderMetadataSchedulerModule : SpenderMetadataWorkerModule,
+      isManager ? TransferDetailsSchedulerModule : TransferDetailsWorkerModule,
       isManager ? ExploitWebhookModule : AutoRevokeEvaluatorWorkerModule,
       ...(isManager ? [AutoRevokeSchedulerModule, BullBoardModule] : []),
     ];
