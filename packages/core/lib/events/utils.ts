@@ -1,4 +1,4 @@
-import type { Log } from '@revoke.cash/core/events';
+import type { EventTimeLog, Log, LogPosition } from '@revoke.cash/core/events';
 import { deduplicateArray, isNullish } from '@revoke.cash/core/utils';
 import { type Address, getAddress, type Hex, pad, slice } from 'viem';
 
@@ -10,7 +10,15 @@ export const selectorOf = (input: Hex | undefined): Hex | undefined => {
   return slice(input, 0, 4).toLowerCase() as Hex;
 };
 
-export const logSorterChronological = (a: Log, b: Log) => {
+export const toEventTimeLog = (log: Log): EventTimeLog => ({
+  transactionHash: log.transactionHash,
+  blockNumber: log.blockNumber,
+  transactionIndex: log.transactionIndex,
+  logIndex: log.logIndex,
+  timestamp: log.timestamp,
+});
+
+export const logSorterChronological = (a: LogPosition, b: LogPosition) => {
   if (a.blockNumber === b.blockNumber) {
     if (a.transactionIndex === b.transactionIndex) {
       return Number(a.logIndex - b.logIndex);
@@ -22,8 +30,8 @@ export const logSorterChronological = (a: Log, b: Log) => {
 
 export const sortLogsChronologically = (logs: Log[]) => logs.sort(logSorterChronological);
 
-export const sortTokenEventsChronologically = <T extends { rawLog: Log }>(events: T[]): T[] =>
-  events.sort((a, b) => logSorterChronological(a.rawLog, b.rawLog));
+export const sortTokenEventsChronologically = <T extends { time: LogPosition }>(events: T[]): T[] =>
+  events.sort((a, b) => logSorterChronological(a.time, b.time));
 
 export const deduplicateLogsByTopics = (logs: Log[], consideredIndexes: Array<0 | 1 | 2 | 3> = [0, 1, 2, 3]) => {
   const keyGenerator = (log: Log) => {

@@ -206,7 +206,7 @@ export const findMatchingTransferTxHash = async (
       transfer?.type === TokenEventType.TRANSFER_ERC20 &&
       transfer.payload.amount >= expectedAmount &&
       !siblingPaymentAmounts.includes(transfer.payload.amount)
-        ? [transfer.rawLog.transactionHash]
+        ? [transfer.time.transactionHash]
         : [],
     );
 

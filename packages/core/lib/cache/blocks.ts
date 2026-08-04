@@ -1,5 +1,5 @@
 import { getChainName } from '@revoke.cash/core/chains';
-import type { Log, ResolvedTimeLog, TimeLog } from '@revoke.cash/core/events';
+import type { Log, TimeLog } from '@revoke.cash/core/events';
 import { isBrowser } from '@revoke.cash/core/utils';
 import type { PublicClient } from 'viem';
 import type { Block } from './dexie/BlocksDexie';
@@ -51,7 +51,7 @@ class BlocksCache {
     return log.timestamp ?? this.getBlockTimestamp(publicClient, log.blockNumber);
   }
 
-  async getTimeLog(publicClient: PublicClient, log: TimeLog): Promise<ResolvedTimeLog> {
+  async getTimeLog<T extends TimeLog>(publicClient: PublicClient, log: T): Promise<T & { timestamp: number }> {
     const timestamp = await this.getLogTimestamp(publicClient, log);
     return { ...log, timestamp };
   }

@@ -12,7 +12,7 @@ export interface CombinedHistoryResult extends CombinedQueryResult<EnrichedToken
 const eventsFingerprint = (events: ChainAllowanceData['events']): string => {
   const newestEvent = events[0];
   if (!newestEvent) return '0';
-  return `${events.length}-${newestEvent.rawLog.transactionHash}-${newestEvent.rawLog.logIndex}`;
+  return `${events.length}-${newestEvent.time.transactionHash}-${newestEvent.time.logIndex}`;
 };
 
 export const usePremiumHistoryResults = (chainData: ChainAllowanceData[]): CombinedHistoryResult[] => {

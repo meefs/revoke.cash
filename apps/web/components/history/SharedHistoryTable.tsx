@@ -57,7 +57,7 @@ const SharedHistoryTable = ({ approvalHistory, isLoading, error, isPremium = fal
       },
     },
     getRowId(row) {
-      return `${row.chainId}-${row.rawLog.transactionHash}-${row.rawLog.logIndex}`;
+      return `${row.chainId}-${row.time.transactionHash}-${row.time.logIndex}`;
     },
     meta: { onFilter } as any,
   });

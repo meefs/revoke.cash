@@ -6,7 +6,7 @@ import type { Nullable } from '@revoke.cash/core/types';
 import { isNullish } from '@revoke.cash/core/utils';
 import type { SpenderRiskData } from '@revoke.cash/core/whois';
 import { type Address, decodeEventLog, getAbiItem, type Hash, type Hex, toEventSelector } from 'viem';
-import { logSorterChronological } from './utils';
+import { logSorterChronological, toEventTimeLog } from './utils';
 
 // Topic-0 selectors for every event type we parse. Computed once at import.
 // ERC20 and ERC721 share the Transfer(address,address,uint256) signature, so their topics are equal.
@@ -32,6 +32,11 @@ export interface Log {
 export type TimeLog = Pick<Log, 'transactionHash' | 'blockNumber' | 'timestamp'>;
 export type ResolvedTimeLog = TimeLog & { timestamp: number };
 
+export type LogPosition = Pick<Log, 'blockNumber' | 'transactionIndex' | 'logIndex'>;
+
+export type EventTimeLog = TimeLog & LogPosition;
+export type ResolvedEventTimeLog = EventTimeLog & { timestamp: number };
+
 export interface Filter {
   address?: Address;
   topics: Array<Hex | null>;
@@ -53,9 +58,8 @@ export interface BaseTokenEvent {
   chainId: number;
   token: Address;
   owner: Address;
-  time: TimeLog;
+  time: EventTimeLog;
   payload: any;
-  rawLog: Log;
 }
 
 export interface Erc20ApprovalEvent extends BaseTokenEvent {
@@ -128,7 +132,7 @@ export type TransferTokenEvent = Erc20TransferEvent | Erc721TransferEvent;
 export type TokenEvent = ApprovalTokenEvent | TransferTokenEvent;
 
 // Enriched event with guaranteed timestamp and token metadata attached
-export type Enriched<T extends TokenEvent> = T & { metadata: TokenMetadata; time: ResolvedTimeLog };
+export type Enriched<T extends TokenEvent> = T & { metadata: TokenMetadata; time: ResolvedEventTimeLog };
 export type EnrichedTokenEvent = Enriched<TokenEvent>;
 
 export const isTransferTokenEvent = (event: TokenEvent): event is TransferTokenEvent => {
@@ -173,13 +177,13 @@ export const parsePermit2Log = (log: Log, chainId: number): Permit2Event | undef
     const { owner, token, spender } = parsedEvent.args;
     const amount = isLockdownEvent ? 0n : parsedEvent.args.amount;
     const expiration = isLockdownEvent ? 0 : parsedEvent.args.expiration;
-    const time = { transactionHash: log.transactionHash, blockNumber: log.blockNumber, timestamp: log.timestamp };
+    const time = toEventTimeLog(log);
 
     if ([owner, token, spender, amount, expiration].some((arg) => isNullish(arg))) return undefined;
 
     // Different chains may have different instances of Permit2, so we use the address of the instance that emitted the approval event
     const payload = { spender, permit2Address: log.address, amount, expiration };
-    return { type: TokenEventType.PERMIT2, rawLog: log, token, chainId, owner, time, payload };
+    return { type: TokenEventType.PERMIT2, token, chainId, owner, time, payload };
   } catch {
     console.error('Malformed Permit2 log:', log);
     return undefined;
@@ -197,14 +201,14 @@ export const parseApprovalLog = (log: Log, chainId: number): Erc20ApprovalEvent 
     const parsedEvent = decodeEventLog({ abi, data: log.data, topics: log.topics, strict: false }) as any;
 
     const { owner, spender, tokenId, amount } = parsedEvent.args;
-    const time = { transactionHash: log.transactionHash, blockNumber: log.blockNumber, timestamp: log.timestamp };
+    const time = toEventTimeLog(log);
 
     if ([owner, spender].some((arg) => isNullish(arg)) || [tokenId, amount].every((arg) => isNullish(arg))) {
       return undefined;
     }
 
     const payload = { spender, tokenId, amount };
-    return { type, rawLog: log, token: log.address, chainId, owner, time, payload };
+    return { type, token: log.address, chainId, owner, time, payload };
   } catch {
     console.error('Malformed approval log:', log);
     return undefined;
@@ -216,12 +220,12 @@ export const parseApprovalForAllLog = (log: Log, chainId: number): Erc721Approva
     const parsedEvent = decodeEventLog({ abi: ERC721_ABI, data: log.data, topics: log.topics, strict: false }) as any;
 
     const { owner, spender, approved } = parsedEvent.args;
-    const time = { transactionHash: log.transactionHash, blockNumber: log.blockNumber, timestamp: log.timestamp };
+    const time = toEventTimeLog(log);
 
     if ([owner, spender, approved].some((arg) => isNullish(arg))) return undefined;
 
     const payload = { spender, approved };
-    return { type: TokenEventType.APPROVAL_FOR_ALL, rawLog: log, token: log.address, chainId, owner, time, payload };
+    return { type: TokenEventType.APPROVAL_FOR_ALL, token: log.address, chainId, owner, time, payload };
   } catch {
     console.error('Malformed approval for all log:', log);
     return undefined;
@@ -240,7 +244,7 @@ export const parseTransferLog = (
     const parsedEvent = decodeEventLog({ abi, data: log.data, topics: log.topics, strict: false }) as any;
 
     const { from, to, tokenId, amount } = parsedEvent.args;
-    const time = { transactionHash: log.transactionHash, blockNumber: log.blockNumber, timestamp: log.timestamp };
+    const time = toEventTimeLog(log);
 
     if ([owner, from, to].some((arg) => isNullish(arg)) || [tokenId, amount].every((arg) => isNullish(arg))) {
       return undefined;
@@ -248,7 +252,7 @@ export const parseTransferLog = (
 
     const payload = { from, to, tokenId, amount };
 
-    return { type, rawLog: log, token: log.address, chainId, owner, time, payload };
+    return { type, token: log.address, chainId, owner, time, payload };
   } catch {
     console.error('Malformed transfer log:', log);
     return undefined;
@@ -256,7 +260,7 @@ export const parseTransferLog = (
 };
 
 export const getEventKey = (event: TokenEvent) => {
-  return JSON.stringify(event.rawLog);
+  return `${event.time.transactionHash}-${event.time.logIndex}`;
 };
 
 // This is a utility function to convert an approval event to an allowance payload used to display the allowance amount in the history table
@@ -308,6 +312,6 @@ export const hasTransfersFromOwnerAfterEvent = (
     (event) =>
       event.type === TokenEventType.TRANSFER_ERC20 &&
       event.payload.from === owner &&
-      logSorterChronological(event.rawLog, afterEvent.rawLog) > 0,
+      logSorterChronological(event.time, afterEvent.time) > 0,
   );
 };

@@ -1,6 +1,7 @@
 import { AGW_SESSIONS_ABI } from '@revoke.cash/core/abis';
 import blocksCache from '@revoke.cash/core/cache/blocks';
-import type { Log, ResolvedTimeLog, TimeLog } from '@revoke.cash/core/events';
+import type { EventTimeLog, Log, ResolvedTimeLog } from '@revoke.cash/core/events';
+import { toEventTimeLog } from '@revoke.cash/core/events/utils';
 import { isNullish } from '@revoke.cash/core/utils';
 import { getWalletAddress, writeContractUnlessExcessiveGas } from '@revoke.cash/core/wallet';
 import { type Address, decodeEventLog, type Hash, type Hex, type PublicClient, type WalletClient } from 'viem';
@@ -9,12 +10,12 @@ export interface SessionCreatedEvent {
   type: 'SESSION_CREATED';
   chainId: number;
   account: Address;
-  time: TimeLog;
+  time: EventTimeLog;
   payload: {
     sessionHash: Hash;
     sessionSpec: SessionSpec;
+    validatorAddress: Address;
   };
-  rawLog: Log;
 }
 
 interface SessionSpec {
@@ -62,9 +63,15 @@ export const parseSessionCreatedLog = (log: Log, chainId: number): SessionCreate
   });
 
   const { account, sessionHash, sessionSpec } = parsedEvent.args;
-  const time = { transactionHash: log.transactionHash, blockNumber: log.blockNumber, timestamp: log.timestamp };
+  const time = toEventTimeLog(log);
 
-  return { type: 'SESSION_CREATED', rawLog: log, chainId, account, time, payload: { sessionHash, sessionSpec } };
+  return {
+    type: 'SESSION_CREATED',
+    chainId,
+    account,
+    time,
+    payload: { sessionHash, sessionSpec, validatorAddress: log.address },
+  };
 };
 
 export interface Session {
@@ -100,7 +107,7 @@ const getSessionFromEvent = async (
   if (event.payload.sessionSpec.expiresAt < BigInt(Date.now()) / 1000n) return undefined;
 
   const status = await publicClient.readContract({
-    address: event.rawLog.address,
+    address: event.payload.validatorAddress,
     abi: AGW_SESSIONS_ABI,
     functionName: 'sessionStatus',
     args: [event.account, event.payload.sessionHash],
@@ -111,7 +118,7 @@ const getSessionFromEvent = async (
   return {
     chainId: event.chainId,
     account: event.account,
-    validatorAddress: event.rawLog.address,
+    validatorAddress: event.payload.validatorAddress,
     payload: event.payload,
     lastUpdated: await blocksCache.getTimeLog(publicClient, event.time),
   };

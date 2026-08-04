@@ -13,7 +13,7 @@ export const processErc721ApprovalEvents = (events: ApprovalTokenEvent[]): Appro
   const singleNftApprovalLastSpenderMap = new Map<string, Address>();
 
   return events
-    .sort((a, b) => logSorterChronological(a.rawLog, b.rawLog))
+    .sort((a, b) => logSorterChronological(a.time, b.time))
     .map((event) => {
       if (event.type !== TokenEventType.APPROVAL_ERC721) return event;
 

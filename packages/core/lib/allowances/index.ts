@@ -263,7 +263,7 @@ export const getLimitedErc721AllowancesFromApprovals = async (
   );
 
   const validated = await Promise.all(
-    deduplicatedApprovals.map(async (approval) => {
+    deduplicatedApprovals.map(async (approval): Promise<Erc721SingleAllowance | undefined> => {
       const { tokenId, spender } = approval.payload;
       // Most recent approval was a revoke (approve(0)) — definitively cleared, no RPC needed.
       if (spender === ADDRESS_ZERO) return undefined;

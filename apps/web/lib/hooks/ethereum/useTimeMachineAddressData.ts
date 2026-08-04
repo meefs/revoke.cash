@@ -91,7 +91,7 @@ const getHistoricalAddressData = async (
 
   if (!block) return toHistoricalAddressData(currentData, [], null);
 
-  const historicalEvents = currentData.events.filter((event) => event.rawLog.blockNumber <= block.blockNumber);
+  const historicalEvents = currentData.events.filter((event) => event.time.blockNumber <= block.blockNumber);
   if (historicalEvents.length === 0) return toHistoricalAddressData(currentData, [], block.blockNumber);
 
   const options: AllowanceDerivationOptions = {
