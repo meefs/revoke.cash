@@ -27,6 +27,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { Address } from 'viem';
 import { type CachedAllowanceRow, getCachedAllowances, serializeAllowanceFromRow } from './allowances';
 import {
+  failFastIfAddressHasTooMuchActivity,
   failFastIfAllowanceStateIsBehind,
   failFastIfEventsStateHasNoProgress,
   failFastIfEventsStateIsBehind,
@@ -49,6 +50,9 @@ import {
 
 export const getCachedAddressData = async (address: Address, chainId: DocumentedChainId): Promise<AddressData> => {
   const { eventsState, allowanceState } = await getIndexerReadStates(address, chainId);
+
+  failFastIfAddressHasTooMuchActivity(eventsState, chainId);
+  failFastIfAddressHasTooMuchActivity(allowanceState, chainId);
 
   failFastIfIndexingIsFailing(eventsState, chainId);
   failFastIfIndexingIsFailing(allowanceState, chainId);

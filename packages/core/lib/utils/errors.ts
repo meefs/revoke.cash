@@ -151,7 +151,10 @@ export const isTooMuchActivityError = (error?: string | any): boolean => {
     return isTooMuchActivityError(parseErrorMessage(error)) || isTooMuchActivityError(stringifyError(error));
   }
 
-  return error?.toLowerCase()?.includes('address has too much activity');
+  const lowercaseMessage = error?.toLowerCase();
+  if (lowercaseMessage?.includes('address has too much activity')) return true;
+  if (lowercaseMessage?.includes('wallet has too much activity')) return true; // indexer TooMuchActivityError
+  return false;
 };
 
 export const isEventGetterTimeoutError = (error?: string | any): boolean => {

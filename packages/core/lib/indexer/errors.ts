@@ -40,16 +40,17 @@ export class StillIndexingError extends ExportableError {
 
 // Thrown when a single cache query returns more than `limit` rows. Postgres results larger than
 // ~60MB fail at the driver level; this error lets us surface a graceful "too much activity" path
-// instead of hitting that.
+// instead of hitting that. Also thrown (without a limit) by cached read paths when the indexer
+// has recorded a too-much-activity failure for the address.
 export class TooMuchActivityError extends ExportableError {
   readonly chainId: number;
-  readonly limit: number;
+  readonly limit: number | null;
 
-  constructor(chainId: number, limit: number) {
+  constructor(chainId: number, limit?: number) {
     super(`This wallet has too much activity on ${getChainName(chainId)}, so its approvals cannot be loaded.`);
     this.name = 'TooMuchActivityError';
     this.chainId = chainId;
-    this.limit = limit;
+    this.limit = limit ?? null;
   }
 
   export() {

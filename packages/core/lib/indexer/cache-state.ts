@@ -1,9 +1,10 @@
 import { getDb } from '@revoke.cash/core/db/client';
 import { indexerAllowanceState, indexerEventsState } from '@revoke.cash/core/db/schema/indexer';
 import { isNullish } from '@revoke.cash/core/utils';
+import { isTooMuchActivityError } from '@revoke.cash/core/utils/errors';
 import { and, eq } from 'drizzle-orm';
 import type { Address } from 'viem';
-import { ChainUnresponsiveError, StillIndexingError } from './errors';
+import { ChainUnresponsiveError, StillIndexingError, TooMuchActivityError } from './errors';
 import { assertIndexerIsNotTooFarBehind } from './progress';
 
 export type EventsState = Pick<
@@ -69,6 +70,12 @@ export const getIndexerReadStates = async (address: Address, chainId: number): P
     getIndexerAllowanceState(address, chainId),
   ]);
   return { eventsState, allowanceState };
+};
+
+export const failFastIfAddressHasTooMuchActivity = (state: FailureState, chainId: number): void => {
+  if (state?.lastError && isTooMuchActivityError(state.lastError)) {
+    throw new TooMuchActivityError(chainId);
+  }
 };
 
 // Throws `ChainUnresponsiveError` when the indexer has repeatedly failed for this

@@ -27,6 +27,7 @@ import {
   isEventGetterTimeoutError,
   isLogRequestSizeError,
   isLogResponseSizeError,
+  isTransientError,
   isViemRequestTimeoutError,
   parseErrorMessage,
 } from '../utils/errors';
@@ -193,10 +194,15 @@ const runWithRangeReduction = async <T>(
   } catch (error) {
     if (!isSplittableScanError(error)) throw error;
     const range = toBlock - fromBlock;
-    if (range <= MIN_BLOCK_RANGE) throw error; // pathological event density; let BullMQ handle it
+    if (range <= MIN_BLOCK_RANGE) {
+      // A minimum-range scan that still overflows is pathological event density, not a range problem
+      if (isTransientError(error)) throw error;
+      throw new Error(`Address has too much activity: cannot complete a ${MIN_BLOCK_RANGE}-block scan`);
+    }
 
-    const halvedToBlock = fromBlock + Math.floor(range / 2);
-    return runWithRangeReduction(fromBlock, halvedToBlock, attempt, rangeReductions + 1);
+    const halvedRange = Math.floor(range / 2);
+    const reducedRange = halvedRange < NARROW_RANGE_THRESHOLD ? MIN_BLOCK_RANGE : halvedRange;
+    return runWithRangeReduction(fromBlock, fromBlock + reducedRange, attempt, rangeReductions + 1);
   }
 };
 
