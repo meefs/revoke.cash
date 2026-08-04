@@ -1,6 +1,9 @@
 import { createViemPublicClientForChain, getChainLogsRpcUrl } from '@revoke.cash/core/chains';
 import type { Filter, Log } from '@revoke.cash/core/events';
 import { isNullish } from '@revoke.cash/core/utils';
+import { isChainHeightError } from '@revoke.cash/core/utils/errors';
+import { withRetry } from '@revoke.cash/core/utils/promises';
+import { SECOND } from '@revoke.cash/core/utils/time';
 import { getAddress, type PublicClient } from 'viem';
 import type { LogsProvider } from './LogsProvider';
 
@@ -27,6 +30,15 @@ export class ViemLogsProvider implements LogsProvider {
       filter.topics = filter.topics?.map((topic) => (isNullish(topic) ? [] : topic)) as Log['topics'];
     }
 
+    // Chain height errors resolve themselves within a block time, so we briefly wait and retry
+    return withRetry(() => this.requestLogs(filter), {
+      retries: 2,
+      delayMs: 1 * SECOND,
+      shouldRetry: isChainHeightError,
+    });
+  }
+
+  private async requestLogs(filter: Filter): Promise<Log[]> {
     const logs = await this.client.request({
       method: 'eth_getLogs',
       params: [

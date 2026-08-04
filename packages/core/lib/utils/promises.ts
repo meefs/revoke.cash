@@ -1,5 +1,5 @@
 import PQueue from 'p-queue';
-import { timeout } from '.';
+import { delay, timeout } from '.';
 
 export const unpackResult = async <T>(promise: Promise<T[]>): Promise<T> => (await promise)[0];
 
@@ -57,4 +57,19 @@ export const mapAsyncBounded = async <T, U>(
 
 export const withTimeout = async <T>(promise: Promise<T>, ms: number, timeoutMessage: string): Promise<T> => {
   return await Promise.race([promise, timeout(ms, timeoutMessage)]);
+};
+
+export const withRetry = async <T>(
+  operation: () => Promise<T>,
+  options: { retries: number; delayMs: number; shouldRetry?: (error: unknown) => boolean },
+): Promise<T> => {
+  try {
+    return await operation();
+  } catch (error) {
+    if (options.retries <= 0) throw error;
+    if (options.shouldRetry && !options.shouldRetry(error)) throw error;
+
+    await delay(options.delayMs);
+    return withRetry(operation, { ...options, retries: options.retries - 1 });
+  }
 };

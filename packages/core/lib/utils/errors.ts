@@ -197,6 +197,21 @@ export const isLogRequestSizeError = (error?: string | any): boolean => {
   return false;
 };
 
+// Sometimes the node that answered eth_blockNumber is slightly ahead of the node that answered eth_getLogs,
+// so the node that answered eth_getLogs rejects the request with this message. We treat this as a transient error.
+export const isChainHeightError = (error?: string | any): boolean => {
+  if (!error) return false;
+
+  if (typeof error !== 'string') {
+    return isChainHeightError(parseErrorMessage(error)) || isChainHeightError(stringifyError(error));
+  }
+
+  const lowercaseMessage = error?.toLowerCase();
+  if (lowercaseMessage?.includes('block range extends beyond current head')) return true; // geth, reth, Erigon, Nimbus
+  if (lowercaseMessage?.includes('block not found: chain-height')) return true; // Covalent
+  return false;
+};
+
 export const isRateLimitError = (error?: string | any): boolean => {
   if (!error) return false;
 
@@ -250,17 +265,6 @@ export const isSwitchChainNotSupportedError = (error?: string | any): boolean =>
   return error?.toLowerCase()?.includes('does not support programmatic chain switching');
 };
 
-export const isCovalentError = (error?: string | any): boolean => {
-  if (!error) return false;
-
-  if (typeof error !== 'string') {
-    return isCovalentError(parseErrorMessage(error)) || isCovalentError(stringifyError(error));
-  }
-
-  const lowercaseMessage = error?.toLowerCase();
-  return lowercaseMessage?.includes('block not found: chain-height');
-};
-
 // Transient errors are expected to resolve themselves after some time
 export const isTransientError = (error?: string | any): boolean => {
   if (!error) return false;
@@ -269,7 +273,7 @@ export const isTransientError = (error?: string | any): boolean => {
     return isTransientError(parseErrorMessage(error)) || isTransientError(stringifyError(error));
   }
 
-  return isNetworkError(error) || isRateLimitError(error) || isCovalentError(error);
+  return isNetworkError(error) || isRateLimitError(error) || isChainHeightError(error);
 };
 
 export const parseErrorMessage = (error: any): string => {
