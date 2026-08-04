@@ -1,6 +1,10 @@
 import { recomputeAllowances, recordAllowanceFailure } from '@revoke.cash/core/indexer/allowances';
 import { getCachedAddressData } from '@revoke.cash/core/indexer/allowances-read';
-import { failFastIfEventsStateIsBehind, getIndexerEventsState } from '@revoke.cash/core/indexer/cache-state';
+import {
+  failFastIfAllowanceStateIsTooFarBehind,
+  failFastIfEventsStateIsBehind,
+  getIndexerReadStates,
+} from '@revoke.cash/core/indexer/cache-state';
 import { indexEvents, recordEventsFailure } from '@revoke.cash/core/indexer/events';
 import { addressSchema, supportedChainIdSchema } from '@revoke.cash/core/schemas';
 import { authorizeRequest, RateLimiters, requirePremiumEntitlement } from 'lib/api/auth';
@@ -34,8 +38,9 @@ export async function GET(req: NextRequest, props: Props) {
 export async function POST(req: NextRequest, props: Props) {
   try {
     const { params } = await parseAndAuthorizePremiumRequest(req, props);
-    const eventsState = await getIndexerEventsState(params.address, params.chainId);
+    const { eventsState, allowanceState } = await getIndexerReadStates(params.address, params.chainId);
     failFastIfEventsStateIsBehind(eventsState);
+    failFastIfAllowanceStateIsTooFarBehind(eventsState, allowanceState);
 
     await indexEvents(params.address, params.chainId).catch(async (error) => {
       await recordEventsFailure(params.address, params.chainId, error);

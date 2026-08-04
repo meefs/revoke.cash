@@ -97,6 +97,19 @@ export const failFastIfEventsStateIsBehind = (state: EventsState | undefined): v
   });
 };
 
+export const failFastIfAllowanceStateIsTooFarBehind = (
+  eventsState: EventsState | undefined,
+  allowanceState: AllowanceState | undefined,
+): void => {
+  if (isNullish(eventsState?.lastToBlock)) return;
+
+  assertIndexerIsNotTooFarBehind({
+    lastToBlock: allowanceState?.computedToBlock ?? 0,
+    headBlock: eventsState.lastToBlock,
+    maxBlockRange: eventsState.maxBlockRange,
+  });
+};
+
 export const failFastIfAllowanceStateIsBehind = (
   eventsState: EventsState | undefined,
   allowanceState: AllowanceState | undefined,
