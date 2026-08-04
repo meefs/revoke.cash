@@ -49,7 +49,7 @@ export const isSpamTokenSymbol = (symbol: string) => {
     // Includes http(s)://
     /https?:\/\//i,
     // Includes a TLD (this is not exhaustive, but we can add more TLDs to the list as needed - better than nothing)
-    /\.com|\.io|\.xyz|\.org|\.me|\.site|\.net|\.fi|\.vision|\.team|\.app|\.exchange|\.cash|\.finance|\.cc|\.cloud|\.fun|\.wtf|\.game|\.games|\.city|\.claims|\.family|\.events|\.to|\.us|\.vip|\.ly|\.lol|\.biz|\.life|\.pm|\.lat|.bar/i,
+    /\.com|\.io|\.xyz|\.org|\.me|\.site|\.net|\.fi|\.vision|\.team|\.app|\.exchange|\.cash|\.finance|\.cc|\.cloud|\.fun|\.wtf|\.game|\.games|\.city|\.claims|\.family|\.events|\.to|\.us|\.vip|\.ly|\.lol|\.biz|\.life|\.pm|\.lat|\.bar/i,
     // Includes "www."
     /www\./i,
     // Includes common spam words
@@ -102,7 +102,7 @@ export const getTokenMetadata = async (
       throwIfNotErc721(token.address, publicClient),
     ]);
 
-    if (isSpamTokenSymbol(symbol)) throw new SpamError('symbol');
+    if (!metadataFromMapping && isSpamTokenSymbol(symbol)) throw new SpamError('symbol');
     return { ...metadataFromMapping, symbol, price: null, decimals: 0 };
   }
 
@@ -120,7 +120,7 @@ export const getTokenMetadata = async (
     metadataFromMapping || chainId === ChainId.SeiNetwork ? undefined : throwIfNotErc20(token.address, publicClient), // Don't check if we have metadata from the mapping
   ]);
 
-  if (isSpamTokenSymbol(symbol)) throw new SpamError('symbol');
+  if (!metadataFromMapping && isSpamTokenSymbol(symbol)) throw new SpamError('symbol');
 
   // Price will be loaded separately via useTokenPrice hook
   return { ...metadataFromMapping, totalSupply, symbol: String(symbol), decimals, price: null };
