@@ -4,8 +4,6 @@ import { ChainId } from '@revoke.cash/chains';
 // also support it, so we only need to deny-list chains that are known to not support it. Last checked 2026-08-02.
 export const APPROVED_TRANSFERS_UNSUPPORTED_CHAINS: number[] = [
   // No trace support found on any configured or known endpoint (probed 2026-08-02)
-  ChainId.DogechainMainnet,
-  ChainId.EDUChain,
   ChainId.EtherlinkMainnet,
   ChainId.Matchain,
   ChainId.OasysMainnet,
@@ -16,7 +14,6 @@ export const APPROVED_TRANSFERS_UNSUPPORTED_CHAINS: number[] = [
   ChainId.ArbitrumNova, // dRPC serves Arbitrum Nova but rejects all callTracer configs
   ChainId['SongbirdCanary-Network'],
   ChainId.ShidoNetwork,
-  ChainId.BitgertMainnet,
   ChainId['Filecoin-Mainnet'], // no debug_traceTransaction (only parity-style trace methods)
   ChainId.PulseChain, // no debug_traceTransaction (only parity-style trace methods)
   ChainId.NeonEVMMainnet, // debug_traceTransaction availability flaps between requests
@@ -31,7 +28,6 @@ export const APPROVED_TRANSFERS_UNSUPPORTED_CHAINS: number[] = [
   ChainId.KCCMainnet,
   ChainId.MetisAndromedaMainnet,
   ChainId.Scroll,
-  ChainId.ShimmerEVM,
   ChainId.TACMainnet,
   ChainId.Viction,
   ChainId.ZetaChainMainnet,

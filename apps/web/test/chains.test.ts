@@ -78,7 +78,9 @@ describe(extended ? 'Chain Support (Extended)' : 'Chain Support', () => {
         expect(getChainNativeTokenCoingeckoId(chainId), `${chainName} native token coingecko id`).to.exist;
 
         const NO_TOKEN_PRICING: number[] = [
+          ChainId.AnimechainMainnet,
           ChainId.HarmonyMainnetShard0,
+          42018, // Mythos
           ChainId.ReyaNetwork,
           ChainId.RISE,
           ChainId['SongbirdCanary-Network'],

@@ -56,7 +56,7 @@ We've added lots of networks to our ever-growing list of 100+ supported networks
 - [Abstract](/token-approval-checker/abstract)
 - [Ink](/token-approval-checker/ink)
 - [Sonic](/token-approval-checker/sonic)
-- [Hyperliquid EVM](/token-approval-checker/hyperliquid-evm)
+- [HyperEVM](/token-approval-checker/hyperevm)
 - [Unichain](/token-approval-checker/unichain)
 - [Berachain](/token-approval-checker/berachain)
 - [Story](/token-approval-checker/story)

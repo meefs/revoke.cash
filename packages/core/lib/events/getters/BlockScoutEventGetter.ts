@@ -1,11 +1,5 @@
-import {
-  BLOCKSCOUT_SUPPORTED_CHAINS,
-  getChainApiKey,
-  getChainApiUrl,
-  getChainEtherscanCompatiblePlatformNames,
-} from '@revoke.cash/core/chains';
+import { BLOCKSCOUT_SUPPORTED_CHAINS, getChainApiKey, getChainApiUrl } from '@revoke.cash/core/chains';
 import { EventDataSourceOutOfSyncError, LatestBlockUnavailableError } from '@revoke.cash/core/events/errors';
-import type { EtherscanPlatform } from '@revoke.cash/core/types';
 import type { Hex } from 'viem';
 import { createExplorerClients, EtherscanEventGetter } from './EtherscanEventGetter';
 import type { EventGetter } from './EventGetter';
@@ -33,10 +27,9 @@ export class BlockScoutEventGetter extends EtherscanEventGetter implements Event
   async getLatestBlock(chainId: number): Promise<number> {
     const apiUrl = getChainApiUrl(chainId)!;
     const apiKey = getChainApiKey(chainId);
-    const platform = getChainEtherscanCompatiblePlatformNames(chainId);
     const client = this.clients[chainId]!;
 
-    const searchParams = prepareGetLatestBlockQuery(apiKey, platform);
+    const searchParams = prepareGetLatestBlockQuery(apiKey);
 
     const latestBlockPromise = client.get(apiUrl, { searchParams }).json<LatestBlockResponse>();
 
@@ -71,13 +64,11 @@ export class BlockScoutEventGetter extends EtherscanEventGetter implements Event
 
 // Note: newer Blockscout instances have an Etherscan-compatible API, but older ones do not
 // which is why we have a separate BlockScoutEventGetter
-const prepareGetLatestBlockQuery = (apiKey?: string, platform?: EtherscanPlatform) => {
+const prepareGetLatestBlockQuery = (apiKey?: string) => {
   const query = {
     module: 'block',
     action: 'eth_block_number',
-    // The new Blockscout API uses the 'apikey' parameter instead of 'apiKey'
-    apiKey: platform?.domain === 'blockscout' ? undefined : apiKey,
-    apikey: platform?.domain === 'blockscout' ? apiKey : undefined,
+    apiKey,
   };
 
   // Remove 'undefined' values from the query

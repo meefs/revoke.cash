@@ -19,7 +19,6 @@ export const findBlockByTimestamp = async (
 ): Promise<BlockAtTimestamp | null> => {
   const MIN_VALID_BLOCKS: Record<number, number> = {
     [ChainId.SeiNetwork]: 79123881,
-    [ChainId.DogechainMainnet]: -1,
     [ChainId['Filecoin-Mainnet']]: -1,
     [ChainId.Injective]: -1,
     [ChainId.ShidoNetwork]: -1,

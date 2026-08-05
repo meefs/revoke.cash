@@ -887,6 +887,7 @@
       "id": "robinhood",
       "type": "network",
       "attributes": { "name": "Robinhood", "coingecko_asset_platform_id": "robinhood" }
-    }
+    },
+    { "id": "doma", "type": "network", "attributes": { "name": "Doma", "coingecko_asset_platform_id": "doma" } }
   ]
 }

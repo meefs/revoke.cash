@@ -5,6 +5,7 @@ import type { Address } from 'viem';
 export const TEST_ADDRESSES: Record<SupportedChainId, Address> = {
   // Mainnets
   [ChainId.Abstract]: '0x08A8494EcA0AaA732B6292c23b8904ea627F156b',
+  [ChainId.AnimechainMainnet]: '0x3B747C372C2088963ABc2194B7D5ADe238965b33',
   [ChainId.ApeChain]: '0x722E2E4c15bE1fDDEd3C86f4100bC32b181827F5',
   [ChainId.ArbitrumNova]: '0x67F36d34c5c740EdaC7d33d71B0a90b7853293eE',
   [ChainId.ArbitrumOne]: '0xB278126845e513438F0Ce9d9f845e9336730d750',
@@ -14,7 +15,6 @@ export const TEST_ADDRESSES: Record<SupportedChainId, Address> = {
   [ChainId.Base]: '0xe9A8E731941D63601F8d928db963CfE65E0648FC',
   [ChainId.Beam]: '0xc1447c8c647eF2f564cEAe520E1b65C758A02f9F',
   [ChainId.Berachain]: '0xED361b6dCce5498EEF362126BFdA548bAf78833C',
-  [ChainId.BitgertMainnet]: '0x6AC875A1C4E12c25265B01C9A2d1112fbb2AdfaF',
   [ChainId.Blast]: '0x4ff8ff73C5a485ca231Bc79bEd276c162e360C2e',
   [ChainId.BNBSmartChainMainnet]: '0xF26864fa07E941e268a1c95E3B678e3a36031eCa',
   [ChainId.BOB]: '0x873D133876cbB180A333393e333DEaA3D373cDd4',
@@ -23,9 +23,9 @@ export const TEST_ADDRESSES: Record<SupportedChainId, Address> = {
   [ChainId.ChilizChainMainnet]: '0x466111CB22867851fA667deaeeBe772cE435148b',
   [ChainId.CoreBlockchainMainnet]: '0xF29E73EA0d4EF0366D95cF966dA1Dd58C88d916F',
   [ChainId.CronosMainnet]: '0xB8cAD90CBCb2157d68FD72c43766756cB9bA9B52',
+  [ChainId.DataNetwork]: '0x4545dFE080ADf461756710e5204ab6d7d4924B8E',
   [ChainId.DegenChain]: '0x825853aeD453e8C4201adcbaA9384d62ABbD7dEe',
-  [ChainId.DogechainMainnet]: '0x544b7Bfd815905fF87a0d25b1Fb109931851fdCc',
-  [ChainId.EDUChain]: '0x956900132b5EE2282AA65ce4Fa2120Ea533Dc6c9',
+  [ChainId.Doma]: '0x5e0de3691E5A8E3DF3738b51F32771D62Aef6BC8',
   [ChainId.EthereumClassic]: '0x8163dB62D6294bA66261644EcCD5FD5269451495',
   [ChainId.EthereumMainnet]: '0x797eBaEEF8278BA93b3b2ebDE4280Ae2B5Fda03B',
   [ChainId['Filecoin-Mainnet']]: '0xbE2009437463895DF25Ab9895634B347672503cF',
@@ -39,7 +39,7 @@ export const TEST_ADDRESSES: Record<SupportedChainId, Address> = {
   [ChainId.HarmonyMainnetShard0]: '0xe33eb8AbaFC78b00987ff1570640e0419634cd78',
   [ChainId.Hemi]: '0x473eD6129788A9e6cF2da3D326869E277404fBdd',
   [ChainId.CitreaMainnet]: '0xbDDF138854333CbAE98987FB787c1CA18c6a435B',
-  999: '0xdbfc2F881d0A2864b3d247e08C5d93BaF564050e', // Hyperliquid EVM
+  999: '0xdbfc2F881d0A2864b3d247e08C5d93BaF564050e', // HyperEVM
   [ChainId.ImmutablezkEVM]: '0xEAf9eaE01b153FAec95A666427391BCcBdAACC18',
   [ChainId.Injective]: '0x96FF0691b18254C97Db23da2044e521297716BAD',
   [ChainId.Ink]: '0xB48586959C7A5e5ef1D36A3d3027C11690E0818c',
@@ -60,6 +60,7 @@ export const TEST_ADDRESSES: Record<SupportedChainId, Address> = {
   [ChainId.Monad]: '0x6cCEF041d4Be3Db50Cc093cff835D8E793FcbfAF',
   [ChainId.Mode]: '0x0A30C1F21E0268A58327665aA5106a8444c5C21c',
   [ChainId.Morph]: '0x82904E95Fd06c2fe9873af6C85ea1b957d70210D',
+  42018: '0xDe58C3ebED2F3b18268eE5eB4818610b2e5F0806', // Mythos
   [ChainId.NeonEVMMainnet]: '0xb0D9a7286659ae4cE9fFADD66Cd89E0B77cE7cE9',
   [ChainId.OasysMainnet]: '0xf04820Bbc0D6B7F7B1f2fE888E5fc60DF6B61262',
   [ChainId.EtherlinkMainnet]: '0x993894799d8Ae6ED114766a603dD9f0deE1B67A4',
@@ -79,14 +80,11 @@ export const TEST_ADDRESSES: Record<SupportedChainId, Address> = {
   [ChainId.SeiNetwork]: '0x98792117648ADf88f1c71d029Ea1aaA9E9Cc0AC7',
   [ChainId.Shape]: '0xDe64A183ff3abcd5f59a30d3ec6300F2496dF6AB',
   [ChainId.ShidoNetwork]: '0x612d5C920AAb4d75349a0F299883be71b1bC060D',
-  [ChainId.ShimmerEVM]: '0xAc4682eF9fE8c62980cd8bd8d8a3Bb100FD652e7',
   5031: '0x8a21a31BEE51A1d0fE075DF7aF6F3Fa549CCB3f0', // Somnia
   [ChainId.Soneium]: '0x351F34efCE7BBF960da2ca61130a89bF41471047',
   [ChainId.SonicMainnet]: '0x793625d47087D55f1F1F29eb94d589C199A1D128',
   [ChainId['SongbirdCanary-Network']]: '0x4E8De52271D3bE18cC972af892198103C1e6AfE8',
   [ChainId.StableMainnet]: '0xa040e31d973463D4207e34E28AA9cD33aaF5e252',
-  [ChainId.Story]: '0x4545dFE080ADf461756710e5204ab6d7d4924B8E',
-  [ChainId.Superposition]: '0x7A414969b98399f7A1C44E18A0c434dD36d3C137',
   [ChainId.TACMainnet]: '0x51588B1E6D9123E1c14Cd3935A1fE78e5fA69486',
   [ChainId.Taiko]: '0xCC16b73b315d511Dd3D8E4DF2e02aE97bB6b3647',
   [ChainId.TelosEVMMainnet]: '0x3E6C7B5F878e80148e6B6b7f89b8c884aD133186',

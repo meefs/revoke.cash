@@ -99,6 +99,13 @@
       "when": 1785762753913,
       "tag": "0013_indexer_transfer_details",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1785859925453,
+      "tag": "0014_indexer_chain_updates",
+      "breakpoints": true
     }
   ]
 }

@@ -52,10 +52,9 @@ export class EtherscanEventGetter implements EventGetter {
   async getLatestBlock(chainId: number): Promise<number> {
     const apiUrl = getChainApiUrl(chainId)!;
     const apiKey = getChainApiKey(chainId);
-    const platform = getChainEtherscanCompatiblePlatformNames(chainId);
     const client = this.clients[chainId]!;
 
-    const searchParams = prepareGetLatestBlockQuery(chainId, apiKey, platform);
+    const searchParams = prepareGetLatestBlockQuery(chainId, apiKey);
 
     const result = await client.get(apiUrl, { searchParams }).json<LatestBlockResponse>();
 
@@ -125,7 +124,7 @@ export class EtherscanEventGetter implements EventGetter {
   }
 }
 
-const prepareGetLatestBlockQuery = (chainId: number, apiKey?: string, platform?: EtherscanPlatform) => {
+const prepareGetLatestBlockQuery = (chainId: number, apiKey?: string) => {
   const timestamp = Math.floor(Date.now() / 1000);
 
   const query = {
@@ -134,9 +133,7 @@ const prepareGetLatestBlockQuery = (chainId: number, apiKey?: string, platform?:
     action: 'getblocknobytime',
     timestamp: String(timestamp),
     closest: 'before',
-    // The new Blockscout API uses the 'apikey' parameter instead of 'apiKey'
-    apiKey: platform?.domain === 'blockscout' ? undefined : apiKey,
-    apikey: platform?.domain === 'blockscout' ? apiKey : undefined,
+    apiKey,
   };
 
   // Remove 'undefined' values from the query
