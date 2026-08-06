@@ -83,8 +83,6 @@ export const getAdminHealth = async (): Promise<AdminHealth> => {
   };
 };
 
-const DETAIL_ROW_LIMIT = 50;
-
 export interface EvaluationBacklogRow {
   address: Address;
   chainId: number;
@@ -92,38 +90,26 @@ export interface EvaluationBacklogRow {
   lastEvaluatedAt: string | null;
 }
 
-export interface EvaluationBacklogDetails {
-  rows: EvaluationBacklogRow[];
-  totalCount: number;
-}
-
-export const getEvaluationBacklogRows = async (): Promise<EvaluationBacklogDetails> => {
+export const getEvaluationBacklogRows = async (): Promise<EvaluationBacklogRow[]> => {
   const db = getDb();
 
-  const [rows, [countRow]] = await Promise.all([
-    db
-      .select({
-        address: indexerAllowanceState.address,
-        chainId: indexerAllowanceState.chainId,
-        computedAt: indexerAllowanceState.computedAt,
-        lastEvaluatedAt: indexerAllowanceState.lastEvaluatedAt,
-      })
-      .from(indexerAllowanceState)
-      .where(evaluationBacklogConditions(db))
-      .orderBy(asc(indexerAllowanceState.computedAt))
-      .limit(DETAIL_ROW_LIMIT),
-    db.select({ count: count() }).from(indexerAllowanceState).where(evaluationBacklogConditions(db)),
-  ]);
+  const rows = await db
+    .select({
+      address: indexerAllowanceState.address,
+      chainId: indexerAllowanceState.chainId,
+      computedAt: indexerAllowanceState.computedAt,
+      lastEvaluatedAt: indexerAllowanceState.lastEvaluatedAt,
+    })
+    .from(indexerAllowanceState)
+    .where(evaluationBacklogConditions(db))
+    .orderBy(asc(indexerAllowanceState.computedAt));
 
-  return {
-    rows: rows.map((row) => ({
-      ...row,
-      // computedAt is non-null per the backlog conditions
-      computedAt: row.computedAt?.toISOString() ?? '',
-      lastEvaluatedAt: row.lastEvaluatedAt?.toISOString() ?? null,
-    })),
-    totalCount: countRow.count,
-  };
+  return rows.map((row) => ({
+    ...row,
+    // computedAt is non-null per the backlog conditions
+    computedAt: row.computedAt?.toISOString() ?? '',
+    lastEvaluatedAt: row.lastEvaluatedAt?.toISOString() ?? null,
+  }));
 };
 
 export interface IndexerProblemRow {
@@ -136,41 +122,29 @@ export interface IndexerProblemRow {
   nextRunAt: string | null;
 }
 
-export interface IndexerProblemDetails {
-  rows: IndexerProblemRow[];
-  totalCount: number;
-}
-
-export const getIndexerProblemRows = async (kind: IndexerProblemKind): Promise<IndexerProblemDetails> => {
+export const getIndexerProblemRows = async (kind: IndexerProblemKind): Promise<IndexerProblemRow[]> => {
   const db = getDb();
 
-  const [rows, [countRow]] = await Promise.all([
-    db
-      .select({
-        address: indexerEventsState.address,
-        chainId: indexerEventsState.chainId,
-        consecutiveFailures: indexerEventsState.consecutiveFailures,
-        lastError: indexerEventsState.lastError,
-        disabledAt: indexerEventsState.disabledAt,
-        lastScanAt: indexerEventsState.lastScanAt,
-        nextRunAt: indexerEventsState.nextRunAt,
-      })
-      .from(indexerEventsState)
-      .where(indexerProblemConditions(kind))
-      .orderBy(desc(indexerEventsState.consecutiveFailures))
-      .limit(DETAIL_ROW_LIMIT),
-    db.select({ count: count() }).from(indexerEventsState).where(indexerProblemConditions(kind)),
-  ]);
+  const rows = await db
+    .select({
+      address: indexerEventsState.address,
+      chainId: indexerEventsState.chainId,
+      consecutiveFailures: indexerEventsState.consecutiveFailures,
+      lastError: indexerEventsState.lastError,
+      disabledAt: indexerEventsState.disabledAt,
+      lastScanAt: indexerEventsState.lastScanAt,
+      nextRunAt: indexerEventsState.nextRunAt,
+    })
+    .from(indexerEventsState)
+    .where(indexerProblemConditions(kind))
+    .orderBy(desc(indexerEventsState.consecutiveFailures));
 
-  return {
-    rows: rows.map((row) => ({
-      ...row,
-      disabledAt: row.disabledAt?.toISOString() ?? null,
-      lastScanAt: row.lastScanAt?.toISOString() ?? null,
-      nextRunAt: row.nextRunAt?.toISOString() ?? null,
-    })),
-    totalCount: countRow.count,
-  };
+  return rows.map((row) => ({
+    ...row,
+    disabledAt: row.disabledAt?.toISOString() ?? null,
+    lastScanAt: row.lastScanAt?.toISOString() ?? null,
+    nextRunAt: row.nextRunAt?.toISOString() ?? null,
+  }));
 };
 
 export interface StuckPendingPaymentRow {
@@ -183,41 +157,26 @@ export interface StuckPendingPaymentRow {
   expiresAt: string;
 }
 
-export interface StuckPendingPaymentDetails {
-  rows: StuckPendingPaymentRow[];
-  totalCount: number;
-}
-
-export const getStuckPendingPaymentRows = async (): Promise<StuckPendingPaymentDetails> => {
+export const getStuckPendingPaymentRows = async (): Promise<StuckPendingPaymentRow[]> => {
   const db = getDb();
 
-  // Evaluate the cutoff once so the rows and count use the same predicate
-  const conditions = stuckPendingPaymentConditions();
+  const rows = await db
+    .select({
+      id: premiumPayments.id,
+      ownerAddress: premiumPayments.ownerAddress,
+      subscriptionId: premiumPayments.subscriptionId,
+      chainId: premiumPayments.chainId,
+      amountUsdCents: premiumPayments.amountUsdCents,
+      createdAt: premiumPayments.createdAt,
+      expiresAt: premiumPayments.expiresAt,
+    })
+    .from(premiumPayments)
+    .where(stuckPendingPaymentConditions())
+    .orderBy(asc(premiumPayments.expiresAt));
 
-  const [rows, [countRow]] = await Promise.all([
-    db
-      .select({
-        id: premiumPayments.id,
-        ownerAddress: premiumPayments.ownerAddress,
-        subscriptionId: premiumPayments.subscriptionId,
-        chainId: premiumPayments.chainId,
-        amountUsdCents: premiumPayments.amountUsdCents,
-        createdAt: premiumPayments.createdAt,
-        expiresAt: premiumPayments.expiresAt,
-      })
-      .from(premiumPayments)
-      .where(conditions)
-      .orderBy(asc(premiumPayments.expiresAt))
-      .limit(DETAIL_ROW_LIMIT),
-    db.select({ count: count() }).from(premiumPayments).where(conditions),
-  ]);
-
-  return {
-    rows: rows.map((row) => ({
-      ...row,
-      createdAt: row.createdAt.toISOString(),
-      expiresAt: row.expiresAt.toISOString(),
-    })),
-    totalCount: countRow.count,
-  };
+  return rows.map((row) => ({
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    expiresAt: row.expiresAt.toISOString(),
+  }));
 };
