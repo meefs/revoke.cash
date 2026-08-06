@@ -1,3 +1,4 @@
+import { getHeapStatistics } from 'node:v8';
 import { NestFactory } from '@nestjs/core';
 import { logBootstrapError, registerProcessErrorHandlers } from '@revoke.cash/backend/logger/bootstrap';
 import { Logger } from 'nestjs-pino';
@@ -15,7 +16,8 @@ const bootstrap = async (): Promise<void> => {
   const config = app.get(ConfigService);
 
   await app.listen(config.port);
-  logger.log(`indexer [${config.role}] listening on :${config.port}`, 'Bootstrap');
+  const heapLimitMb = Math.round(getHeapStatistics().heap_size_limit / (1024 * 1024));
+  logger.log(`indexer [${config.role}] listening on :${config.port} (heap limit ${heapLimitMb}MB)`, 'Bootstrap');
 };
 
 bootstrap().catch((error) => {

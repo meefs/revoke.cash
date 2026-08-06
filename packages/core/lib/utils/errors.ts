@@ -209,6 +209,7 @@ export const isChainHeightError = (error?: string | any): boolean => {
   const lowercaseMessage = error?.toLowerCase();
   if (lowercaseMessage?.includes('block range extends beyond current head')) return true; // geth, reth, Erigon, Nimbus
   if (lowercaseMessage?.includes('block not found: chain-height')) return true; // Covalent
+  if (lowercaseMessage?.includes('block not found for eth_getLogs')) return true; // Etherscan
   return false;
 };
 

@@ -29,6 +29,7 @@ import {
 } from '@revoke.cash/backend/indexer/queues/transfer-details';
 import { GroupLimiterService } from '@revoke.cash/backend/queue/group-limiter.service';
 import {
+  floorEventsMaxBlockRangeAfterStall,
   indexEvents,
   isSplittableScanError,
   recordEventsFailure,
@@ -39,7 +40,7 @@ import { parseErrorMessage } from '@revoke.cash/core/utils/errors';
 import type { Job, Queue } from 'bullmq';
 import type { Address } from 'viem';
 
-@Processor(EVENTS_QUEUE_NAME, { concurrency: 50, lockDuration: 90_000 })
+@Processor(EVENTS_QUEUE_NAME, { concurrency: 50, lockDuration: 90_000, maxStalledCount: 2 })
 export class EventsWorker extends WorkerHost {
   private readonly logger = new Logger(EventsWorker.name);
 
@@ -239,7 +240,8 @@ export class EventsWorker extends WorkerHost {
   async onFailed(job: Job<EventsJobData> | undefined, error: Error): Promise<void> {
     const attempt = job?.attemptsMade ?? 0;
     const maxAttempts = job?.opts?.attempts ?? 1;
-    const exhausted = attempt >= maxAttempts;
+    // After 3 stalled attempts,, it arrives here as `UnrecoverableError`, so we'll stop retrying and record the failure
+    const exhausted = attempt >= maxAttempts || error.name === 'UnrecoverableError';
 
     this.logger.error({
       event: 'events_indexing_failed',
@@ -255,32 +257,59 @@ export class EventsWorker extends WorkerHost {
 
     if (!job?.data) return;
 
-    const { eventsScanId, chainId, address } = job.data;
+    const { chainId, address } = job.data;
 
     if (isSplittableScanError(error)) {
-      try {
-        const nextMaxBlockRange = await reduceEventsMaxBlockRangeAfterFailure(address, chainId);
-        this.logger.warn({
-          event: 'events_max_block_range_reduced',
-          outcome: 'reduced',
-          eventsScanId,
-          chainId,
-          address,
-          nextMaxBlockRange,
-        });
-      } catch (rangeError) {
-        this.logger.warn({
-          event: 'events_max_block_range_reduction_failed',
-          outcome: 'failed',
-          eventsScanId,
-          chainId,
-          address,
-          error: parseErrorMessage(rangeError),
-        });
-      }
+      await this.reduceMaxBlockRange(job.data, 'scan_error');
     }
 
     if (!exhausted) return;
     await recordEventsFailure(address, chainId, error);
+  }
+
+  @OnWorkerEvent('stalled')
+  async onStalled(jobId: string): Promise<void> {
+    const job = await this.eventsQueue.getJob(jobId).catch(() => undefined);
+    if (!job?.data) return;
+
+    this.logger.warn({
+      event: 'events_indexing_stalled',
+      outcome: 'stalled',
+      eventsScanId: job.data.eventsScanId,
+      chainId: job.data.chainId,
+      address: job.data.address,
+    });
+
+    await this.reduceMaxBlockRange(job.data, 'stalled');
+  }
+
+  private async reduceMaxBlockRange(jobData: EventsJobData, trigger: 'scan_error' | 'stalled'): Promise<void> {
+    const { eventsScanId, chainId, address } = jobData;
+    try {
+      const nextMaxBlockRange =
+        trigger === 'stalled'
+          ? await floorEventsMaxBlockRangeAfterStall(address, chainId)
+          : await reduceEventsMaxBlockRangeAfterFailure(address, chainId);
+
+      this.logger.warn({
+        event: 'events_max_block_range_reduced',
+        outcome: 'reduced',
+        eventsScanId,
+        chainId,
+        address,
+        trigger,
+        nextMaxBlockRange,
+      });
+    } catch (error) {
+      this.logger.warn({
+        event: 'events_max_block_range_reduction_failed',
+        outcome: 'failed',
+        eventsScanId,
+        chainId,
+        address,
+        trigger,
+        error: parseErrorMessage(error),
+      });
+    }
   }
 }

@@ -29,4 +29,5 @@ COPY . .
 WORKDIR /app/apps/indexer
 
 # Role chosen at deploy time via `IS_MANAGER` env var (read by ConfigService).
-CMD ["node", "--require", "@swc-node/register", "src/main.ts"]
+# Without an explicit cap, V8 limits the heap to roughly half the instance's 2G
+CMD ["node", "--max-old-space-size=1536", "--require", "@swc-node/register", "src/main.ts"]

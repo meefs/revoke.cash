@@ -200,9 +200,7 @@ const runWithRangeReduction = async <T>(
       throw new Error(`Address has too much activity: cannot complete a ${MIN_BLOCK_RANGE}-block scan`);
     }
 
-    const halvedRange = Math.floor(range / 2);
-    const reducedRange = halvedRange < NARROW_RANGE_THRESHOLD ? MIN_BLOCK_RANGE : halvedRange;
-    return runWithRangeReduction(fromBlock, fromBlock + reducedRange, attempt, rangeReductions + 1);
+    return runWithRangeReduction(fromBlock, fromBlock + reduceBlockRange(range), attempt, rangeReductions + 1);
   }
 };
 
@@ -234,13 +232,23 @@ export const reduceEventsMaxBlockRangeAfterFailure = async (
     columns: { maxBlockRange: true },
   });
 
-  const currentMaxBlockRange = existingState?.maxBlockRange;
-  const nextMaxBlockRange = isNullish(currentMaxBlockRange)
-    ? FALLBACK_MAX_BLOCK_RANGE
-    : Math.max(MIN_BLOCK_RANGE, Math.floor(currentMaxBlockRange / 2));
-
+  const nextMaxBlockRange = reduceBlockRange(existingState?.maxBlockRange);
   await upsertEventsState(db, address, chainId, { maxBlockRange: nextMaxBlockRange });
   return nextMaxBlockRange;
+};
+
+const reduceBlockRange = (range: number | null | undefined): number => {
+  if (isNullish(range)) return FALLBACK_MAX_BLOCK_RANGE;
+  const halvedRange = Math.floor(range / 2);
+  return halvedRange < NARROW_RANGE_THRESHOLD ? MIN_BLOCK_RANGE : halvedRange;
+};
+
+export const floorEventsMaxBlockRangeAfterStall = async (
+  address: Address,
+  chainId: DocumentedChainId,
+): Promise<number> => {
+  await upsertEventsState(getDb(), address, chainId, { maxBlockRange: MIN_BLOCK_RANGE });
+  return MIN_BLOCK_RANGE;
 };
 
 const computeScanRange = async (
