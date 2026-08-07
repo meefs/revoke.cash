@@ -26,10 +26,8 @@ export class TransferDetailsWorker extends WorkerHost {
     const { chainId, transactionHash, source } = job.data;
     if (!isApprovedTransfersSupportedChain(chainId)) return;
 
-    const result = await this.groupLimiter.runWithLimit(
-      traceLimiterKeyForChain(chainId),
-      () => classifyTransaction(chainId, transactionHash),
-      { job, token },
+    const result = await classifyTransaction(chainId, transactionHash, (work) =>
+      this.groupLimiter.runWithLimit(traceLimiterKeyForChain(chainId), work, { job, token }),
     );
 
     if (result.rowsClassified === 0 && result.rowsSkipped === 0) return;

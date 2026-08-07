@@ -31,9 +31,12 @@ export interface ClassifyTransactionResult {
 
 type EventRow = typeof indexerEvents.$inferSelect;
 
+type TraceLimiter = <T>(work: () => Promise<T>) => Promise<T>;
+
 export const classifyTransaction = async (
   chainId: number,
   transactionHash: Hash,
+  withTraceLimit: TraceLimiter = (work) => work(),
 ): Promise<ClassifyTransactionResult> => {
   const start = Date.now();
   const transferRows = await findUnclassifiedTransactionTransfers(chainId, transactionHash);
@@ -72,8 +75,8 @@ export const classifyTransaction = async (
     };
   }
 
-  // Some RPCs return null instead of erroring for pruned or unknown transactions.
-  const trace = await createTraceClient(chainId).traceTransaction(transactionHash);
+  // Only the trace RPC call is rate-limited, so skip-only transactions never consume a trace slot
+  const trace = await withTraceLimit(() => createTraceClient(chainId).traceTransaction(transactionHash));
   if (isNullish(trace)) throw new Error('trace not found for transaction');
 
   // The receipt has Transfer logs, so a trace without any frame logs means a degraded backend

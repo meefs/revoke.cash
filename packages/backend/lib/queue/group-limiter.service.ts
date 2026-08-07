@@ -18,7 +18,7 @@ export type GroupBusyError = Bottleneck.BottleneckError;
 export const isGroupBusyError = (error: unknown): boolean =>
   error instanceof Bottleneck.BottleneckError && /dropped/i.test(error.message);
 
-const DELAY_BASE_MS = 3_000;
+const DELAY_BASE_MS = 30_000;
 const DELAY_JITTER_MS = 5_000;
 
 interface JobContext {
