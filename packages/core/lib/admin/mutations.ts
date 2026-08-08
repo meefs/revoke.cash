@@ -44,6 +44,18 @@ export const resetAddressIndexing = async (address: Address): Promise<number> =>
   return updatedRows.length;
 };
 
+// The chain-scoped counterpart of resetAddressIndexing: re-enables indexing for all address rows
+// on a single chain, for when a chain-wide problem (e.g. a broken RPC) has been resolved.
+export const resetChainIndexing = async (chainId: number): Promise<number> => {
+  const updatedRows = await getTransactionalDb()
+    .update(indexerEventsState)
+    .set({ disabledAt: null, consecutiveFailures: 0, lastError: null, nextRunAt: new Date() })
+    .where(eq(indexerEventsState.chainId, chainId))
+    .returning({ address: indexerEventsState.address });
+
+  return updatedRows.length;
+};
+
 // The reconcile cron only touches pending payments, so an expired quote whose transfer landed
 // late is never rescanned. The admin reconcile revives it to pending first; the regular
 // reconciliation then either confirms it against a matching transfer (with the usual row lock

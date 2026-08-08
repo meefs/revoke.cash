@@ -23,6 +23,7 @@ export interface AuditActionDetails {
   admin_subscription_granted: { paymentId: string; planId: string; durationDays: number; reason: string | null };
   admin_subscription_rebuilt: Record<string, never>;
   admin_indexing_reset: { resetChainCount: number };
+  admin_chain_indexing_reset: { resetAddressCount: number };
   admin_auto_revoke_action_retried: { actionId: string };
 }
 
@@ -47,6 +48,7 @@ export const AUDIT_ACTIONS = [
   'admin_subscription_granted',
   'admin_subscription_rebuilt',
   'admin_indexing_reset',
+  'admin_chain_indexing_reset',
   'admin_auto_revoke_action_retried',
 ] as const satisfies readonly AuditAction[];
 

@@ -8,7 +8,7 @@ import Button from 'components/common/Button';
 import ChainDisplay from 'components/common/ChainDisplay';
 import WithHoverTooltip from 'components/common/WithHoverTooltip';
 import { useAdminIndexerProblems } from 'lib/hooks/admin/useAdminHealthDetails';
-import { useResetIndexing } from 'lib/hooks/admin/useAdminLookup';
+import { useResetAddressIndexing, useResetChainIndexing } from 'lib/hooks/admin/useAdminLookup';
 import { useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { Address } from 'viem';
@@ -97,7 +97,7 @@ const buildIndexerProblemColumns = (kind: IndexerProblemKind) => [
     header: 'Actions',
     cell: (info) => (
       <div className="py-1.5 text-sm">
-        <ResetIndexingCell address={info.row.original.address} />
+        <ResetIndexingCell address={info.row.original.address} chainId={info.row.original.chainId} />
       </div>
     ),
   }),
@@ -119,13 +119,33 @@ const IndexerProblemsPanel = ({ kind, isOpen }: Props) => {
   );
 };
 
-const ResetIndexingCell = ({ address }: { address: Address }) => {
-  const resetIndexing = useResetIndexing(address);
+const ResetIndexingCell = ({ address, chainId }: { address: Address; chainId: number }) => {
+  const resetAddressIndexing = useResetAddressIndexing(address);
+  const resetChainIndexing = useResetChainIndexing(chainId);
 
   return (
-    <Button style="secondary" size="sm" onClick={() => resetIndexing.mutate()} loading={resetIndexing.isPending}>
-      Reset indexing
-    </Button>
+    <div className="flex items-center gap-2">
+      <WithHoverTooltip tooltip="Reset indexing on all chains for this address">
+        <Button
+          style="secondary"
+          size="sm"
+          onClick={() => resetAddressIndexing.mutate()}
+          loading={resetAddressIndexing.isPending}
+        >
+          Reset address
+        </Button>
+      </WithHoverTooltip>
+      <WithHoverTooltip tooltip="Reset indexing for all addresses on this chain">
+        <Button
+          style="secondary"
+          size="sm"
+          onClick={() => resetChainIndexing.mutate()}
+          loading={resetChainIndexing.isPending}
+        >
+          Reset chain
+        </Button>
+      </WithHoverTooltip>
+    </div>
   );
 };
 

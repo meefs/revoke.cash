@@ -10,7 +10,7 @@ import StatusLabel from 'components/common/StatusLabel';
 import TimeAgo from 'components/common/TimeAgo';
 import Table from 'components/common/table/Table';
 import WithHoverTooltip from 'components/common/WithHoverTooltip';
-import { useResetIndexing } from 'lib/hooks/admin/useAdminLookup';
+import { useResetAddressIndexing } from 'lib/hooks/admin/useAdminLookup';
 import { useTable } from 'lib/hooks/useTable';
 import { twMerge } from 'tailwind-merge';
 import type { Address } from 'viem';
@@ -114,7 +114,7 @@ const columns = [
 ];
 
 const IndexingHealthCard = ({ address, indexerStates, isLoading }: Props) => {
-  const resetIndexing = useResetIndexing(address);
+  const resetIndexing = useResetAddressIndexing(address);
 
   const table = useTable({
     data: indexerStates ?? [],
