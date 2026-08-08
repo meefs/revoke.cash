@@ -2,7 +2,7 @@ import { createViemPublicClientForChain, getChainLogsRpcUrl } from '@revoke.cash
 import type { Filter, Log } from '@revoke.cash/core/events';
 import { isNullish } from '@revoke.cash/core/utils';
 import { isChainHeightError } from '@revoke.cash/core/utils/errors';
-import { withRetry } from '@revoke.cash/core/utils/promises';
+import { withRetry, withTimeout } from '@revoke.cash/core/utils/promises';
 import { SECOND } from '@revoke.cash/core/utils/time';
 import { getAddress, type PublicClient } from 'viem';
 import type { LogsProvider } from './LogsProvider';
@@ -21,7 +21,7 @@ export class ViemLogsProvider implements LogsProvider {
   }
 
   async getLatestBlock(): Promise<number> {
-    return Number(await this.client.getBlockNumber());
+    return withTimeout(this.client.getBlockNumber().then(Number), 10 * SECOND, 'RPC is unresponsive');
   }
 
   async getLogs(filter: Filter): Promise<Log[]> {

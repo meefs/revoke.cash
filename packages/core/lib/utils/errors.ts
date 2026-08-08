@@ -137,6 +137,7 @@ export const isLogResponseSizeError = (error?: string | any): boolean => {
   if (lowercaseMessage?.includes('query returned more than 10000 results')) return true; // Infura
   if (lowercaseMessage?.includes('log response size exceeded')) return true; // Alchemy
   if (lowercaseMessage?.includes('query timeout exceeded')) return true; // Also Alchemy
+  if (lowercaseMessage?.includes('query exceeds max results')) return true; // Also Alchemy (Erigon based nodes)
   // This is also a partial match for a network error, but the checks for these two error categories are mutually exclusive
   if (lowercaseMessage?.includes('queued request timed out')) return true;
   if (lowercaseMessage?.includes('query returned more than 1024 results')) return true; // ZERO network
@@ -233,6 +234,7 @@ export const isChainHeightError = (error?: string | any): boolean => {
   if (lowercaseMessage?.includes('block not found: chain-height')) return true; // Covalent
   if (lowercaseMessage?.includes('block not found for eth_getLogs')) return true; // Etherscan
   if (lowercaseMessage?.includes('outside the requested range')) return true; // HyperSync ("server returned next_block N outside the requested range")
+  if (lowercaseMessage?.includes('invalid block range params')) return true;
   return false;
 };
 

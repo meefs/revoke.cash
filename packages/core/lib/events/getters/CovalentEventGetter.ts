@@ -96,7 +96,7 @@ export class CovalentEventGetter implements EventGetter {
 const formatCovalentEvent = (covalentLog: any) => ({
   address: getAddress(covalentLog.sender_address),
   topics: covalentLog.raw_log_topics,
-  data: covalentLog.raw_log_data,
+  data: covalentLog.raw_log_data ?? '0x',
   transactionHash: covalentLog.tx_hash,
   blockNumber: covalentLog.block_height,
   transactionIndex: covalentLog.tx_offset,

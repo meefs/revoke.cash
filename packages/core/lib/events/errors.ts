@@ -6,7 +6,8 @@ export class EventDataSourceError extends ExportableError {
     message: string,
     public readonly reason?: string,
   ) {
-    super(message);
+    // The reason is part of the message so it survives `parseErrorMessage` into stored/displayed errors
+    super(reason ? `${message}: ${reason}` : message);
     this.name = 'EventDataSourceError';
   }
 

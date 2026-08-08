@@ -12,6 +12,7 @@ import { acquireAdvisoryLock } from '@revoke.cash/core/db/utils';
 import { ERC721_TRANSFER_TOPIC, type Filter, type Log } from '@revoke.cash/core/events';
 import {
   DivideAndConquerLogsProvider,
+  getScriptLogsProvider,
   type LogsProvider,
   ScriptLogsProvider,
   ViemLogsProvider,
@@ -31,7 +32,7 @@ import {
   isViemRequestTimeoutError,
   parseErrorMessage,
 } from '../utils/errors';
-import { mapAsync, mapAsyncSequential, withTimeout } from '../utils/promises';
+import { mapAsync, mapAsyncSequential } from '../utils/promises';
 
 // Most chains have RPC limits around 10k blocks, so this should be safe. Some chains might have a lower public RPC
 // limit, which gets handled by the DivideAndConquerLogsProvider.
@@ -97,7 +98,7 @@ export const indexEvents = async (address: Address, chainId: DocumentedChainId):
 
   const initialMaxBlockRange = existingState?.maxBlockRange ?? Number.POSITIVE_INFINITY;
   const { fromBlock, toBlock, headBlock, isCapped } = await computeScanRange(
-    publicClient,
+    chainId,
     existingState?.lastToBlock,
     initialMaxBlockRange,
   );
@@ -252,12 +253,12 @@ export const floorEventsMaxBlockRangeAfterStall = async (
 };
 
 const computeScanRange = async (
-  publicClient: PublicClient,
+  chainId: DocumentedChainId,
   cursor: number | null | undefined,
   maxBlockRange: number,
 ): Promise<{ fromBlock: number; toBlock: number; headBlock: number; isCapped: boolean }> => {
   const fromBlock = !isNullish(cursor) ? Math.max(0, cursor - REORG_DEPTH + 1) : 0;
-  const headBlock = await withTimeout(publicClient.getBlockNumber().then(Number), 10 * SECOND, 'RPC is unresponsive');
+  const headBlock = await getScriptLogsProvider(chainId).getLatestBlock();
   const cappedToBlock = fromBlock + maxBlockRange;
   const toBlock = Math.min(headBlock, cappedToBlock);
   return { fromBlock, toBlock, headBlock, isCapped: toBlock < headBlock };
