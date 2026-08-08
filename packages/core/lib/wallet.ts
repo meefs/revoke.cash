@@ -35,7 +35,7 @@ export const isExcessiveGas = (chainId: number, estimatedGas: bigint): boolean =
 
 export const throwIfExcessiveGas = (chainId: number, estimatedGas: bigint, tokenAddress: Address) => {
   if (isExcessiveGas(chainId, estimatedGas)) {
-    console.error(`Gas limit of ${estimatedGas} is excessive (token: ${tokenAddress})`);
+    console.error(`Gas limit of ${estimatedGas} is excessive (chainId: ${chainId}, token: ${tokenAddress})`);
 
     // TODO: Translate this error message
     throw new Error(

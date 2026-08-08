@@ -10,7 +10,7 @@ import { useAddress } from 'lib/hooks/page-context/AddressIdentityContext';
 import { AddressPageContext } from 'lib/hooks/page-context/AddressPageContext';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useContext } from 'react';
+import { type ComponentProps, useContext } from 'react';
 import { usePublicClient } from 'wagmi';
 
 const AddressNavigation = () => {
@@ -40,21 +40,17 @@ const AddressNavigation = () => {
 
   return (
     <NavigationTabs className="my-4">
-      <NavigationTab name={t('address.navigation.allowances')} href={basePath} retainSearchParams={['chainId']} />
-      <NavigationTab name={t('address.navigation.history')} href={historyPath} retainSearchParams={['chainId']} />
-      {showSessionsTab && (
-        <NavigationTab name={t('address.navigation.sessions')} href={sessionsPath} retainSearchParams={['chainId']} />
-      )}
-      <NavigationTab
-        name={t('address.navigation.delegations')}
-        href={delegationsPath}
-        retainSearchParams={['chainId']}
-      />
-      {isPremium && (
-        <NavigationTab name={t('address.navigation.exploits')} href={exploitsPath} retainSearchParams={['chainId']} />
-      )}
+      <RetainedParamsNavigationTab name={t('address.navigation.allowances')} href={basePath} />
+      <RetainedParamsNavigationTab name={t('address.navigation.history')} href={historyPath} />
+      {showSessionsTab && <RetainedParamsNavigationTab name={t('address.navigation.sessions')} href={sessionsPath} />}
+      <RetainedParamsNavigationTab name={t('address.navigation.delegations')} href={delegationsPath} />
+      {isPremium && <RetainedParamsNavigationTab name={t('address.navigation.exploits')} href={exploitsPath} />}
     </NavigationTabs>
   );
 };
 
 export default AddressNavigation;
+
+const RetainedParamsNavigationTab = ({ name, href }: ComponentProps<typeof NavigationTab>) => {
+  return <NavigationTab name={name} href={href} retainSearchParams={['chainId', 'free']} />;
+};

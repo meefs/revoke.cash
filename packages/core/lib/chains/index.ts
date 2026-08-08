@@ -1412,7 +1412,7 @@ export const CHAINS = {
     },
   }),
   [ChainId.ZircuitMainnet]: new Chain({
-    type: SupportType.HYPERSYNC,
+    type: SupportType.PROVIDER,
     chainId: ChainId.ZircuitMainnet,
     name: 'Zircuit',
     coingeckoNetworkId: 'zircuit',

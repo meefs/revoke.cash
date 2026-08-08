@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { createContext, type ReactNode, useContext } from 'react';
 import type { Address } from 'viem';
 import { useNameLookup } from '../ethereum/useNameLookup';
@@ -34,9 +35,18 @@ export const AddressIdentityContextProvider = ({
   const { domainName: resolvedDomainName } = useNameLookup(initialDomainName ? undefined : address);
 
   const domainName = initialDomainName ?? resolvedDomainName ?? undefined;
+  const isForcedFree = useSearchParams().get('free') === 'true';
 
   return (
-    <AddressIdentityContext value={{ address, domainName, isPremium, isUltimate, premiumEndsAt }}>
+    <AddressIdentityContext
+      value={{
+        address,
+        domainName,
+        isPremium: isPremium && !isForcedFree,
+        isUltimate: isUltimate && !isForcedFree,
+        premiumEndsAt,
+      }}
+    >
       {children}
     </AddressIdentityContext>
   );

@@ -3,12 +3,8 @@ import { isUltimatePlan } from '@revoke.cash/core/premium/plans';
 import { getAddressAndDomainName } from '@revoke.cash/core/whois';
 import CrispPremiumPageSync from 'app/CrispPremiumPageSync';
 import SharedLayout from 'app/layouts/SharedLayout';
-import AddressHeader from 'components/address/AddressHeader';
-import AddressNavigation from 'components/address/navigation/AddressNavigation';
-import PremiumAddressHeader from 'components/address/PremiumAddressHeader';
-import PremiumAllowancePageProvider from 'components/address/PremiumAllowancePageProvider';
+import AddressPageExperience from 'components/address/AddressPageExperience';
 import { AddressIdentityContextProvider } from 'lib/hooks/page-context/AddressIdentityContext';
-import { AddressPageContextProvider } from 'lib/hooks/page-context/AddressPageContext';
 import NextIntlClientProvider from 'lib/i18n/NextIntlClientProvider';
 import { notFound } from 'next/navigation';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -57,19 +53,7 @@ const AddressPageLayout = async ({ params, children }: Props) => {
             messages={{ common: messages.common, address: messages.address, exploits: messages.exploits }}
           >
             <CrispPremiumPageSync />
-            {isPremium ? (
-              <PremiumAllowancePageProvider>
-                <PremiumAddressHeader />
-                <AddressNavigation />
-                {children}
-              </PremiumAllowancePageProvider>
-            ) : (
-              <AddressPageContextProvider address={address}>
-                <AddressHeader />
-                <AddressNavigation />
-                {children}
-              </AddressPageContextProvider>
-            )}
+            <AddressPageExperience>{children}</AddressPageExperience>
           </NextIntlClientProvider>
         </AddressIdentityContextProvider>
       </div>
