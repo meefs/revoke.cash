@@ -96,14 +96,9 @@ export const indexEvents = async (address: Address, chainId: DocumentedChainId):
 
   const publicClient = createViemPublicClientForChain(chainId);
 
-  const initialMaxBlockRange = existingState?.maxBlockRange ?? Number.POSITIVE_INFINITY;
-  const { fromBlock, toBlock, headBlock, isCapped } = await computeScanRange(
-    chainId,
-    existingState?.lastToBlock,
-    initialMaxBlockRange,
-  );
-
+  // Most wallets have no activity on most chains, so check activity before everything else
   if (isNullish(existingState?.lastToBlock) && !(await hasChainActivity(chainId, address, publicClient))) {
+    const headBlock = await getRpcLogsProvider(chainId).getLatestBlock();
     await upsertEventsState(db, address, chainId, {
       nextRunAt: computeNextRunAt(0),
       consecutiveFailures: 0,
@@ -112,6 +107,13 @@ export const indexEvents = async (address: Address, chainId: DocumentedChainId):
     });
     return buildIndexEventsResult({ nonceZeroSkipped: true, durationMs: Date.now() - start });
   }
+
+  const initialMaxBlockRange = existingState?.maxBlockRange ?? Number.POSITIVE_INFINITY;
+  const { fromBlock, toBlock, headBlock, isCapped } = await computeScanRange(
+    chainId,
+    existingState?.lastToBlock,
+    initialMaxBlockRange,
+  );
 
   const addressTopic = addressToTopic(address);
 
