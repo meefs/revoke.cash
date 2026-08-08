@@ -1,3 +1,4 @@
+import { type DocumentedChainId, getChainName } from '@revoke.cash/core/chains';
 import { recomputeAllowances, recordAllowanceFailure } from '@revoke.cash/core/indexer/allowances';
 import { getCachedAddressData } from '@revoke.cash/core/indexer/allowances-read';
 import {
@@ -8,6 +9,7 @@ import {
 } from '@revoke.cash/core/indexer/cache-state';
 import { indexEvents, recordEventsFailure } from '@revoke.cash/core/indexer/events';
 import { addressSchema, supportedChainIdSchema } from '@revoke.cash/core/schemas';
+import { ApiError, ExportableError, parseErrorMessage } from '@revoke.cash/core/utils/errors';
 import { authorizeRequest, RateLimiters, requirePremiumEntitlement } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
@@ -23,6 +25,8 @@ const schemas = {
   params: z.object({ chainId: supportedChainIdSchema, address: addressSchema }),
   body: z.undefined(),
 };
+
+export const maxDuration = 30;
 
 // Gets indexed address data for premium users.
 export async function GET(req: NextRequest, props: Props) {
@@ -47,12 +51,12 @@ export async function POST(req: NextRequest, props: Props) {
 
     await indexEvents(params.address, params.chainId).catch(async (error) => {
       await recordEventsFailure(params.address, params.chainId, error);
-      throw error;
+      throw toRefreshError(error, params.chainId);
     });
 
     await recomputeAllowances(params.address, params.chainId).catch(async (error) => {
       await recordAllowanceFailure(params.address, params.chainId, error);
-      throw error;
+      throw toRefreshError(error, params.chainId);
     });
 
     const result = await getCachedAddressData(params.address, params.chainId);
@@ -61,6 +65,12 @@ export async function POST(req: NextRequest, props: Props) {
     return handleApiRouteError(error, { errorMessage: 'Error refreshing cached address data' });
   }
 }
+
+// The real scan error is included so the dashboard can classify it and show it in the error tooltip
+const toRefreshError = (error: unknown, chainId: DocumentedChainId): Error => {
+  if (error instanceof ExportableError) return error;
+  return new ApiError(503, `Could not refresh ${getChainName(chainId)} data: ${parseErrorMessage(error)}`);
+};
 
 const parseAndAuthorizePremiumRequest = async (req: NextRequest, props: Props) => {
   await authorizeRequest(req, {

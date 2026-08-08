@@ -157,6 +157,26 @@ export const isTooMuchActivityError = (error?: string | any): boolean => {
   return false;
 };
 
+export const isChainUnresponsiveError = (error?: string | any): boolean => {
+  if (!error) return false;
+
+  if (typeof error !== 'string') {
+    return isChainUnresponsiveError(parseErrorMessage(error)) || isChainUnresponsiveError(stringifyError(error));
+  }
+
+  return error?.toLowerCase()?.includes('is currently unresponsive');
+};
+
+export const isRefreshFailedError = (error?: string | any): boolean => {
+  if (!error) return false;
+
+  if (typeof error !== 'string') {
+    return isRefreshFailedError(parseErrorMessage(error)) || isRefreshFailedError(stringifyError(error));
+  }
+
+  return error?.toLowerCase()?.includes('could not refresh');
+};
+
 export const isEventGetterTimeoutError = (error?: string | any): boolean => {
   if (!error) return false;
 
@@ -212,6 +232,7 @@ export const isChainHeightError = (error?: string | any): boolean => {
   if (lowercaseMessage?.includes('block range extends beyond current head')) return true; // geth, reth, Erigon, Nimbus
   if (lowercaseMessage?.includes('block not found: chain-height')) return true; // Covalent
   if (lowercaseMessage?.includes('block not found for eth_getLogs')) return true; // Etherscan
+  if (lowercaseMessage?.includes('outside the requested range')) return true; // HyperSync ("server returned next_block N outside the requested range")
   return false;
 };
 

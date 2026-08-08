@@ -1,7 +1,13 @@
 'use client';
 
 import { getChainName } from '@revoke.cash/core/chains';
-import { isTooMuchActivityError, isTransientError, parseErrorMessage } from '@revoke.cash/core/utils/errors';
+import {
+  isChainUnresponsiveError,
+  isRefreshFailedError,
+  isTooMuchActivityError,
+  isTransientError,
+  parseErrorMessage,
+} from '@revoke.cash/core/utils/errors';
 import { AddressPageContext } from 'lib/hooks/page-context/AddressPageContext';
 import { usePremiumEntitlements } from 'lib/hooks/premium/usePremiumEntitlements';
 import { useTranslations } from 'next-intl';
@@ -55,7 +61,7 @@ const getErrorMessage = (
     return <RichText>{(tags) => t.rich('common.errors.messages.too_much_activity', { ...tags, chainName })}</RichText>;
   }
 
-  if (isTransientError(error)) {
+  if (isTransientError(error) || isRefreshFailedError(error) || isChainUnresponsiveError(error)) {
     if (selectedChainId) {
       const chainName = getChainName(selectedChainId);
       return t('common.errors.messages.chain_could_not_connect', { chainName });
