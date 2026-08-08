@@ -15,6 +15,11 @@ export const FEATURES: PricingFeature[] = [
   { labelKey: 'revoke_approvals', free: 'one_chain', premium: true, ultimate: true },
   { labelKey: 'approval_history', free: 'one_chain', premium: true, ultimate: true },
   { labelKey: 'exploit_checker', free: 'one_chain', premium: true, ultimate: true },
+  { labelKey: 'multichain_dashboard', free: false, premium: true, ultimate: true },
+  { labelKey: 'multichain_exploit_checker', free: false, premium: true, ultimate: true },
+  { labelKey: 'approved_transfers', free: false, premium: true, ultimate: true, tooltipKey: 'approved_transfers' },
+  // Time machine is hidden until its standalone launch
+  // { labelKey: 'time_machine', free: false, premium: true, ultimate: true },
   {
     labelKey: 'batch_revoke',
     free: 'per_batch',
@@ -27,10 +32,6 @@ export const FEATURES: PricingFeature[] = [
     },
     upgradedIn: ['premium'],
   },
-  { labelKey: 'multichain_dashboard', free: false, premium: true, ultimate: true },
-  { labelKey: 'multichain_exploit_checker', free: false, premium: true, ultimate: true },
-  // Time machine is hidden until its standalone launch
-  // { labelKey: 'time_machine', free: false, premium: true, ultimate: true },
   { labelKey: 'priority_support', free: false, premium: true, ultimate: true },
   { labelKey: 'continuous_monitoring', free: false, premium: false, ultimate: true, upgradedIn: ['ultimate'] },
   {

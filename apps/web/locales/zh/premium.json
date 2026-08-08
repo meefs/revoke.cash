@@ -71,6 +71,11 @@
     },
     "feature_column": "功能",
     "feature_sections": {
+      "approved_transfers": {
+        "description": "授权允许合约转移您的代币。查看哪些转账是通过您的授权执行的，以及具体是哪个合约转移了代币，支持大多数网络。",
+        "link_label": "查看实际效果",
+        "title": "授权转账检测"
+      },
       "automated_revoking": {
         "description": "设置好规则后，Revoke.cash 会全天候监控您的授权。当某项授权符合您的规则时，系统会代您自动将其撤销，即使在您熟睡时也不例外。",
         "link_label": "了解自动撤销的工作原理",
@@ -99,6 +104,7 @@
       "address_slots": "钱包名额",
       "address_slots_count": "{count} 个钱包",
       "approval_history": "授权历史",
+      "approved_transfers": "授权转账检测",
       "automated_revoking": "自动撤销",
       "batch_revoke": "批量撤销",
       "batch_revoke_paid": "批量撤销（{price}/批次）",
@@ -153,6 +159,7 @@
     },
     "title": "Premium 定价",
     "tooltips": {
+      "approved_transfers": "显示合约使用您的授权转移代币的每一笔转账，并标明具体合约。在大多数受支持的网络上可用。",
       "automated_revoking": "需要使用 MetaMask 或部分其他钱包。支持 {networkCount} 个网络。自动撤销是尽力而为的保护，无法保证完全避免损失。"
     }
   }

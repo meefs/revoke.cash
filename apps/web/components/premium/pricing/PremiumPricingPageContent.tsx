@@ -81,25 +81,36 @@ const PremiumPricingPageContent = () => {
             translationPrefix={TRANSLATION_PREFIX}
           />
           <Feature
+            featureKey="approved_transfers"
+            image="/assets/images/premium/approved-transfers.jpg"
+            video="/assets/videos/premium/approved-transfers.mp4"
+            imagePosition="left"
+            translationPrefix={TRANSLATION_PREFIX}
+            link={{
+              href: `${DEMO_ADDRESS_URL}/history`,
+              label: t('premium.pricing.feature_sections.approved_transfers.link_label'),
+            }}
+          />
+          <Feature
             featureKey="fee_free_batch_revokes"
             image="/assets/images/premium/batch-revoke.jpg"
             video="/assets/videos/premium/batch-revoke.mp4"
-            imagePosition="left"
+            imagePosition="right"
             translationPrefix={TRANSLATION_PREFIX}
           />
-          {/* Time machine is hidden until its standalone launch */}
+          {/* Time machine is hidden until its standalone launch (re-enabling flips automated_revoking back to "right") */}
           {/* <Feature
             featureKey="time_machine"
             image="/assets/images/premium/time-machine.jpg"
             video="/assets/videos/premium/time-machine.mp4"
-            imagePosition="right"
+            imagePosition="left"
             translationPrefix={TRANSLATION_PREFIX}
           /> */}
           <Feature
             featureKey="automated_revoking"
             image="/assets/images/premium/auto-revoke.jpg"
             video="/assets/videos/premium/auto-revoke.mp4"
-            imagePosition="right"
+            imagePosition="left"
             translationPrefix={TRANSLATION_PREFIX}
             badge={t('premium.pricing.tiers.ultimate.name')}
             link={{

@@ -71,6 +71,11 @@
     },
     "feature_column": "Característica",
     "feature_sections": {
+      "approved_transfers": {
+        "description": "Las aprobaciones permiten que los contratos muevan tus tokens. Consulta qué transferencias se ejecutaron a través de tus aprobaciones y exactamente qué contrato movió los tokens, en la mayoría de las redes compatibles.",
+        "link_label": "Míralo en acción",
+        "title": "Detección de transferencias aprobadas"
+      },
       "automated_revoking": {
         "description": "Establece tus reglas y Revoke.cash supervisará tus aprobaciones las 24 horas del día. Cuando una aprobación cumpla con tus reglas, se revocará automáticamente en tu nombre, incluso mientras duermes.",
         "link_label": "Descubre cómo funciona la revocación automática",
@@ -99,6 +104,7 @@
       "address_slots": "Espacios de cartera",
       "address_slots_count": "{count} carteras",
       "approval_history": "Historial de aprobaciones",
+      "approved_transfers": "Detección de transferencias aprobadas",
       "automated_revoking": "Revocación automática",
       "batch_revoke": "Revocación por lotes",
       "batch_revoke_paid": "Revocación por lotes ({price}/lote)",
@@ -153,6 +159,7 @@
     },
     "title": "Precios Premium",
     "tooltips": {
+      "approved_transfers": "Muestra cada transferencia en la que un contrato usó una de tus aprobaciones para mover tus tokens, con el contrato exacto atribuido. Disponible en la mayoría de las redes compatibles.",
       "automated_revoking": "Requiere MetaMask o algunas otras carteras. Compatible con {networkCount} redes. La revocación automática es una protección de mejor esfuerzo y no puede garantizar que se eviten las pérdidas."
     }
   }

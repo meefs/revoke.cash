@@ -71,6 +71,11 @@
     },
     "feature_column": "Feature",
     "feature_sections": {
+      "approved_transfers": {
+        "description": "Approvals let contracts move your tokens. See which transfers were executed through your approvals and exactly which contract moved the tokens, on most supported networks.",
+        "link_label": "See it in action",
+        "title": "Approved Transfer Detection"
+      },
       "automated_revoking": {
         "description": "Set your rules and Revoke.cash watches your approvals around the clock. When an approval matches your rules, it gets revoked automatically on your behalf, even while you sleep.",
         "link_label": "See how Auto-Revoking works",
@@ -99,6 +104,7 @@
       "address_slots": "Wallet slots",
       "address_slots_count": "{count} wallets",
       "approval_history": "Approval history",
+      "approved_transfers": "Approved transfer detection",
       "automated_revoking": "Automated revoking",
       "batch_revoke": "Batch revoke",
       "batch_revoke_paid": "Batch revoke ({price}/batch)",
@@ -153,6 +159,7 @@
     },
     "title": "Premium Pricing",
     "tooltips": {
+      "approved_transfers": "Shows every transfer where a contract used one of your approvals to move your tokens, with the exact contract attributed. Available on most supported networks.",
       "automated_revoking": "Requires MetaMask or select other wallets. Supported on {networkCount} networks. Automated revoking is best-effort and cannot guarantee that losses are prevented."
     }
   }

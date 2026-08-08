@@ -71,6 +71,11 @@
     },
     "feature_column": "機能",
     "feature_sections": {
+      "approved_transfers": {
+        "description": "承認はコントラクトにトークンを移動する権限を与えます。どの転送があなたの承認を通じて実行されたか、そしてどのコントラクトがトークンを移動したかを、ほとんどの対応ネットワークで確認できます。",
+        "link_label": "実際の動作を見る",
+        "title": "承認済み転送の検出"
+      },
       "automated_revoking": {
         "description": "ルールを設定すれば、Revoke.cashが24時間体制で承認を見守ります。承認がルールに一致すると、眠っている間でも、あなたに代わって自動的に取り消されます。",
         "link_label": "自動取り消しの仕組みを見る",
@@ -99,6 +104,7 @@
       "address_slots": "ウォレットスロット",
       "address_slots_count": "{count}個のウォレット",
       "approval_history": "承認履歴",
+      "approved_transfers": "承認済み転送の検出",
       "automated_revoking": "自動取り消し",
       "batch_revoke": "一括取り消し",
       "batch_revoke_paid": "一括取り消し（{price}/バッチ）",
@@ -153,6 +159,7 @@
     },
     "title": "プレミアムの料金プラン",
     "tooltips": {
+      "approved_transfers": "コントラクトがあなたの承認を使ってトークンを移動したすべての転送を、実行したコントラクトとともに表示します。ほとんどの対応ネットワークで利用できます。",
       "automated_revoking": "MetaMaskまたは一部の対応ウォレットが必要です。{networkCount}個のネットワークで対応しています。自動取り消しはベストエフォート型であり、損失を確実に防げると保証するものではありません。"
     }
   }

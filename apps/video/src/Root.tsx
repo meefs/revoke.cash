@@ -10,6 +10,7 @@ import { PremiumScene } from './premium-announcement/scenes/PremiumScene';
 import { PricingScene } from './premium-announcement/scenes/PricingScene';
 import { ProblemScene } from './premium-announcement/scenes/ProblemScene';
 import { TitleCardScene } from './premium-announcement/scenes/TitleCardScene';
+import { ApprovedTransfersShowcase } from './premium-showcase/ApprovedTransfersShowcase';
 import { AutoRevokeShowcase } from './premium-showcase/AutoRevokeShowcase';
 import { BatchRevokeShowcase } from './premium-showcase/BatchRevokeShowcase';
 import { ExploitCheckerShowcase } from './premium-showcase/ExploitCheckerShowcase';
@@ -36,6 +37,7 @@ const ANNOUNCEMENT_SCENES = [
 // Animated mockups for the premium pricing page's feature showcase; the pricing page plays them
 // as looping videos, and representative frames double as their poster images.
 const SHOWCASE_ANIMATIONS = [
+  { id: 'ApprovedTransfersShowcase', component: ApprovedTransfersShowcase, durationInFrames: 180 },
   { id: 'AutoRevokeShowcase', component: AutoRevokeShowcase, durationInFrames: 240 },
   { id: 'MultichainDashboardShowcase', component: MultichainDashboardShowcase, durationInFrames: 180 },
   { id: 'ExploitCheckerShowcase', component: ExploitCheckerShowcase, durationInFrames: 240 },
