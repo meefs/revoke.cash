@@ -12,7 +12,7 @@ import { acquireAdvisoryLock } from '@revoke.cash/core/db/utils';
 import { ERC721_TRANSFER_TOPIC, type Filter, type Log } from '@revoke.cash/core/events';
 import {
   DivideAndConquerLogsProvider,
-  getScriptLogsProvider,
+  getRpcLogsProvider,
   type LogsProvider,
   ScriptLogsProvider,
   ViemLogsProvider,
@@ -258,10 +258,20 @@ const computeScanRange = async (
   maxBlockRange: number,
 ): Promise<{ fromBlock: number; toBlock: number; headBlock: number; isCapped: boolean }> => {
   const fromBlock = !isNullish(cursor) ? Math.max(0, cursor - REORG_DEPTH + 1) : 0;
-  const headBlock = await getScriptLogsProvider(chainId).getLatestBlock();
+  const headBlock = await getScanHeadBlock(chainId, fromBlock, maxBlockRange);
   const cappedToBlock = fromBlock + maxBlockRange;
   const toBlock = Math.min(headBlock, cappedToBlock);
   return { fromBlock, toBlock, headBlock, isCapped: toBlock < headBlock };
+};
+
+// Scan head must come from the same source that serves the logs (narrow = RPC, wide = indexed source)
+const getScanHeadBlock = async (chainId: DocumentedChainId, fromBlock: number, maxBlockRange: number) => {
+  const rpcHeadBlock = await getRpcLogsProvider(chainId).getLatestBlock();
+
+  const isNarrow = Math.min(rpcHeadBlock, fromBlock + maxBlockRange) - fromBlock <= NARROW_RANGE_THRESHOLD;
+  if (isNarrow || !isBackendSupportedChain(chainId)) return rpcHeadBlock;
+
+  return Math.min(rpcHeadBlock, await new ScriptLogsProvider(chainId).getLatestBlock());
 };
 
 type EventsStateUpdate = Partial<typeof indexerEventsState.$inferInsert>;
