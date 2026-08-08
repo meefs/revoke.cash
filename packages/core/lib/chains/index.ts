@@ -1412,13 +1412,13 @@ export const CHAINS = {
     },
   }),
   [ChainId.ZircuitMainnet]: new Chain({
-    type: SupportType.PROVIDER,
+    type: SupportType.HYPERSYNC,
     chainId: ChainId.ZircuitMainnet,
     name: 'Zircuit',
     coingeckoNetworkId: 'zircuit',
     logoUrl: '/assets/images/vendor/chains/zircuit.svg',
     rpc: {
-      main: `https://lb.drpc.live/zircuit/${DRPC_API_KEY}`,
+      main: `https://lb.drpc.live/zircuit-mainnet/${DRPC_API_KEY}`,
     },
     deployedContracts: { multicall3: { address: MULTICALL_ADDRESS, blockCreated: 0 } },
     isOpStack: true,
