@@ -7,10 +7,13 @@ export const updateTableFilters = <T = TokenAllowanceData>(
   newFilters: ColumnFiltersState,
   ignoreIds: string[] = [],
 ) => {
-  table.setColumnFilters((oldFilters) => {
-    const keepOldFilters = oldFilters.filter((filter) => ignoreIds.includes(filter.id));
-    const allFilters = [...keepOldFilters, ...newFilters];
-    const uniqueFilters = deduplicateArray(allFilters, (filter) => filter.id);
-    return uniqueFilters;
-  });
+  const oldFilters = table.getState().columnFilters;
+  const keepOldFilters = oldFilters.filter((filter) => ignoreIds.includes(filter.id));
+  const allFilters = [...keepOldFilters, ...newFilters];
+  const uniqueFilters = deduplicateArray(allFilters, (filter) => filter.id);
+
+  table.setColumnFilters(uniqueFilters);
+
+  const filtersChanged = JSON.stringify(uniqueFilters) !== JSON.stringify(oldFilters);
+  if (filtersChanged) table.resetPageIndex();
 };

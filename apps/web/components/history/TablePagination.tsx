@@ -20,11 +20,12 @@ const TablePagination = <T,>({ table, className }: Props<T>) => {
   const canPreviousPage = table.getCanPreviousPage();
   const canNextPage = table.getCanNextPage();
   const pageIndex = table.getState().pagination.pageIndex;
-  const pageCount = table.getPageCount();
+  const pageCount = Math.max(table.getPageCount(), 1);
   const pageSize = table.getState().pagination.pageSize;
   const totalRows = table.getRowCount();
 
-  if (totalRows <= PAGINATION_ROW_THRESHOLD && pageCount <= 1) return null;
+  const unfilteredRowCount = table.getPreFilteredRowModel().rows.length;
+  if (unfilteredRowCount <= PAGINATION_ROW_THRESHOLD && pageCount <= 1) return null;
 
   const pageSizeOptions = [10, 25, 50, 100].map((size) => ({ value: String(size) }));
 
@@ -36,7 +37,7 @@ const TablePagination = <T,>({ table, className }: Props<T>) => {
             {(tags) =>
               t.rich('common.pagination.showing', {
                 ...tags,
-                start: pageIndex * pageSize + 1,
+                start: Math.min(pageIndex * pageSize + 1, totalRows),
                 end: Math.min((pageIndex + 1) * pageSize, totalRows),
                 total: totalRows,
               })
