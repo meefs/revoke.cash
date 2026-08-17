@@ -16,9 +16,6 @@ const updateSchemas = {
   body: z.strictObject({ subscriptionId: z.uuid().nullable() }),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function GET(req: NextRequest) {
   try {
     const { siweAddress } = await authorizeRequest(req, {

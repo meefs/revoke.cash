@@ -16,9 +16,6 @@ const schemas = {
   }),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function GET(req: NextRequest) {
   try {
     await authorizeRequest(req, { auth: 'siwe', requireAdmin: true, rateLimiter: RateLimiters.PREMIUM_READ });

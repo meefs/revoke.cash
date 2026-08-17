@@ -1,17 +1,9 @@
 import { addressSchema } from '@revoke.cash/core/schemas';
-import {
-  getStoredSiweWalletEdge,
-  RateLimiters,
-  requireRateLimit,
-  requireSameOrigin,
-  storeSessionEdge,
-} from 'lib/api/auth';
+import { getStoredSiweWallet, RateLimiters, requireRateLimit, requireSameOrigin, storeSession } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-
-export const runtime = 'edge';
 
 const schemas = {
   params: z.undefined(),
@@ -27,13 +19,13 @@ export async function POST(req: NextRequest) {
     requireSameOrigin(req);
     const { body } = await parseRequest(req, undefined, schemas);
 
-    const siwe = await getStoredSiweWalletEdge(req, body.address);
+    const siwe = await getStoredSiweWallet(req, body.address);
     if (!siwe) {
       return NextResponse.json({ ok: false });
     }
 
     const res = NextResponse.json({ ok: true });
-    await storeSessionEdge(req, res, { siwe });
+    await storeSession(req, res, { siwe });
     return res;
   } catch (error) {
     return handleApiRouteError(error);

@@ -19,8 +19,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const preferredRegion = ['iad1'];
-
 export async function GET(req: NextRequest, props: Props) {
   try {
     await authorizeRequest(req, {

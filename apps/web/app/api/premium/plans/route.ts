@@ -2,8 +2,6 @@ import { getPremiumPlans } from '@revoke.cash/core/premium/plans';
 import { handleApiRouteError } from 'lib/api/errors';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
-
 export async function GET() {
   try {
     const plans = await getPremiumPlans();

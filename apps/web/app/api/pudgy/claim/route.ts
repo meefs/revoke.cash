@@ -15,7 +15,6 @@ import type { Hash } from 'viem';
 import { z } from 'zod';
 import { PUDGY_API_KEY, PUDGY_API_URL } from '../constants';
 
-export const runtime = 'edge';
 interface PudgyApiResponse {
   success: boolean;
   taskId: Hash;

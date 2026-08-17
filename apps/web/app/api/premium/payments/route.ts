@@ -2,7 +2,7 @@ import { recordAuditEvent } from '@revoke.cash/core/audit/events';
 import { getPaymentToken, isSupportedPaymentChainId } from '@revoke.cash/core/premium/payment-config';
 import { createPayment } from '@revoke.cash/core/premium/payments';
 import { chainIdSchema } from '@revoke.cash/core/schemas';
-import { authorizeRequest, getClientCountryEdge, RateLimiters } from 'lib/api/auth';
+import { authorizeRequest, getClientCountry, RateLimiters } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -25,9 +25,6 @@ const schemas = {
     }),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function POST(req: NextRequest) {
   try {
     const { siweAddress } = await authorizeRequest(req, {
@@ -42,7 +39,7 @@ export async function POST(req: NextRequest) {
       planId,
       chainId,
       tokenSymbol,
-      vatRegion: getClientCountryEdge(req),
+      vatRegion: getClientCountry(req),
     });
 
     await recordAuditEvent({

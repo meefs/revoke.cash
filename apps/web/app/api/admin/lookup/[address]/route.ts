@@ -16,9 +16,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function GET(req: NextRequest, props: Props) {
   const handler = async () => {
     const { params } = await parseRequest(req, props, schemas);

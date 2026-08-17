@@ -10,9 +10,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function GET(req: NextRequest) {
   try {
     const { siweAddress } = await authorizeRequest(req, {

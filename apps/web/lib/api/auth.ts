@@ -5,7 +5,6 @@ import { ApiError } from '@revoke.cash/core/utils/errors';
 import { DAY, HOUR, SECOND } from '@revoke.cash/core/utils/time';
 import { getIronSession, type SessionOptions, unsealData } from 'iron-session';
 import { type AuthSession, UNAUTHENTICATED_AUTH_SESSION } from 'lib/auth/session';
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { cookies, headers } from 'next/headers';
 import type { NextRequest, NextResponse } from 'next/server';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
@@ -101,15 +100,9 @@ export const RateLimiters = {
   }),
 };
 
-export const checkRateLimitAllowed = async (req: NextApiRequest, rateLimiter: RateLimiterMemory) => {
-  return checkRateLimitAllowedByIp(getClientIp(req), rateLimiter);
-};
+export const checkRateLimitAllowed = async (req: NextRequest, rateLimiter: RateLimiterMemory) => {
+  const ip = getClientIpFromHeaders(req.headers);
 
-export const checkRateLimitAllowedEdge = async (req: NextRequest, rateLimiter: RateLimiterMemory) => {
-  return checkRateLimitAllowedByIp(getClientIpEdge(req), rateLimiter);
-};
-
-export const checkRateLimitAllowedByIp = async (ip: string, rateLimiter: RateLimiterMemory) => {
   try {
     await rateLimiter.consume(ip);
     return true;
@@ -118,27 +111,11 @@ export const checkRateLimitAllowedByIp = async (ip: string, rateLimiter: RateLim
   }
 };
 
-export const storeSession = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  sessionUpdate?: Partial<RevokeSession>,
-) => {
+export const storeSession = async (req: NextRequest, res: NextResponse, sessionUpdate?: Partial<RevokeSession>) => {
   const session = await getIronSession<RevokeSession>(req, res, IRON_OPTIONS);
 
   // Store the user's IP as an identifier
-  session.ip = getClientIp(req);
-
-  // Update the session with the provided sessionUpdate if provided
-  session.siwe = sessionUpdate?.siwe;
-
-  await session.save();
-};
-
-export const storeSessionEdge = async (req: NextRequest, res: NextResponse, sessionUpdate?: Partial<RevokeSession>) => {
-  const session = await getIronSession<RevokeSession>(req, res, IRON_OPTIONS);
-
-  // Store the user's IP as an identifier
-  session.ip = getClientIpEdge(req);
+  session.ip = getClientIpFromHeaders(req.headers);
 
   // Update the session with the provided sessionUpdate if provided
   session.siwe = sessionUpdate?.siwe;
@@ -151,7 +128,7 @@ export const unsealSession = async (sealedSession: string) => {
   return unsealData<RevokeSession>(sealedSession, { password, ttl });
 };
 
-export const storeSiweWalletEdge = async (req: NextRequest, res: NextResponse, siwe: SiweSessionData) => {
+export const storeSiweWallet = async (req: NextRequest, res: NextResponse, siwe: SiweSessionData) => {
   const session = await getIronSession<SiweWalletCookieData>(req, res, SIWE_IRON_OPTIONS);
 
   const wallets = getValidSiweWallets(session);
@@ -163,7 +140,7 @@ export const storeSiweWalletEdge = async (req: NextRequest, res: NextResponse, s
   await session.save();
 };
 
-export const getStoredSiweWalletEdge = async (req: NextRequest, address: Address): Promise<SiweSessionData | null> => {
+export const getStoredSiweWallet = async (req: NextRequest, address: Address): Promise<SiweSessionData | null> => {
   const siweCookie = req.cookies.get(SIWE_IRON_OPTIONS.cookieName)?.value;
   if (!siweCookie) return null;
 
@@ -189,13 +166,13 @@ const isSiweWalletValid = (wallet: SiweWalletEntry): boolean => {
   return Date.now() - wallet.verifiedAt <= SIWE_WALLET_MAX_AGE_MS;
 };
 
-export const storeSiweNonceCookieEdge = async (req: NextRequest, res: NextResponse, nonce: string) => {
+export const storeSiweNonceCookie = async (req: NextRequest, res: NextResponse, nonce: string) => {
   const session = await getIronSession<SiweNonceSession>(req, res, SIWE_NONCE_IRON_OPTIONS);
   session.nonce = nonce;
   await session.save();
 };
 
-export const getSiweNonceCookieEdge = async (req: NextRequest): Promise<string | null> => {
+export const getSiweNonceCookie = async (req: NextRequest): Promise<string | null> => {
   const nonceCookie = req.cookies.get(SIWE_NONCE_IRON_OPTIONS.cookieName)?.value;
   if (!nonceCookie) return null;
 
@@ -208,22 +185,17 @@ export const getSiweNonceCookieEdge = async (req: NextRequest): Promise<string |
   }
 };
 
-export const destroySiweNonceCookieEdge = async (req: NextRequest, res: NextResponse) => {
+export const destroySiweNonceCookie = async (req: NextRequest, res: NextResponse) => {
   const session = await getIronSession<SiweNonceSession>(req, res, SIWE_NONCE_IRON_OPTIONS);
   session.destroy();
 };
 
-export const destroySessionEdge = async (req: NextRequest, res: NextResponse) => {
+export const destroySession = async (req: NextRequest, res: NextResponse) => {
   const mainSession = await getIronSession<RevokeSession>(req, res, IRON_OPTIONS);
   mainSession.destroy();
 };
 
-export const checkActiveSession = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await getIronSession<RevokeSession>(req, res, IRON_OPTIONS);
-  return session.ip && session.ip === getClientIp(req);
-};
-
-export const checkActiveSessionEdge = async (req: NextRequest) => {
+export const checkActiveSession = async (req: NextRequest) => {
   const sealedSession = req.cookies.get(IRON_OPTIONS.cookieName)?.value;
   const authSession = await getAuthSessionByHeaders(req.headers, sealedSession);
   return authSession.hasApiSession;
@@ -369,7 +341,7 @@ export const requireSameOrigin = (req: NextRequest) => {
 };
 
 export const requireApiSession = async (req: NextRequest) => {
-  if (!(await checkActiveSessionEdge(req))) {
+  if (!(await checkActiveSession(req))) {
     throw new ApiError(403, 'No API session is active');
   }
 };
@@ -388,7 +360,7 @@ export const requireRateLimit = async (
   rateLimiter: RateLimiterMemory,
   message = 'Too many requests, please try again later.',
 ) => {
-  if (!(await checkRateLimitAllowedEdge(req, rateLimiter))) {
+  if (!(await checkRateLimitAllowed(req, rateLimiter))) {
     throw new ApiError(429, message);
   }
 };
@@ -427,24 +399,6 @@ const getAuthorizedSiweAddress = async (req: NextRequest, auth: ApiAuthMode | un
 };
 
 // Note: if ever moving to a different hosting / reverse proxy, then we need to update this
-const getClientIp = (req: NextApiRequest): string => {
-  // Cloudflare
-  if (isIp(req.headers['cf-connecting-ip'] as string)) return req.headers['cf-connecting-ip'] as string;
-
-  // Vercel
-  if (isIp(req.headers['x-real-ip'] as string)) return req.headers['x-real-ip'] as string;
-
-  // Other
-  const xForwardedFor = (req.headers['x-forwarded-for'] as string)?.split(',')?.at(0);
-  if (isIp(xForwardedFor)) return xForwardedFor;
-
-  throw new Error('Request headers malformed');
-};
-
-const getClientIpEdge = (req: NextRequest): string => {
-  return getClientIpFromHeaders(req.headers);
-};
-
 const getClientIpFromHeaders = (headers: Headers): string => {
   // Cloudflare
   const cfConnectingIp = headers.get('cf-connecting-ip');
@@ -461,7 +415,7 @@ const getClientIpFromHeaders = (headers: Headers): string => {
   throw new Error('Request headers malformed');
 };
 
-export const getClientCountryEdge = (req: NextRequest): string | null => {
+export const getClientCountry = (req: NextRequest): string | null => {
   // Cloudflare
   const cfCountry = req.headers.get('cf-ipcountry');
   if (cfCountry) return cfCountry;

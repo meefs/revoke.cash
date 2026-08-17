@@ -15,9 +15,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-// PDF rendering runs on the node runtime: pdfkit loads its font data from disk
-export const runtime = 'nodejs';
-
 export async function GET(req: NextRequest, props: Props) {
   try {
     const { siweAddress } = await authorizeRequest(req, {

@@ -2,8 +2,6 @@ import { getAuthSessionByHeaders, IRON_OPTIONS } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 export async function GET(req: NextRequest) {
   try {
     const sessionCookie = req.cookies.get(IRON_OPTIONS.cookieName)?.value;

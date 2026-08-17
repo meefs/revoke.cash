@@ -16,9 +16,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-// Reconciliation scans transfer logs via RPC, so it runs on the node runtime
-export const runtime = 'nodejs';
-
 export async function POST(req: NextRequest, props: Props) {
   const handler = async (adminAddress: Address) => {
     const { params } = await parseRequest(req, props, schemas);

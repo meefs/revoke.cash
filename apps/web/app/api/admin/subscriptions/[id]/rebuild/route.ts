@@ -16,8 +16,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const runtime = 'nodejs';
-
 export async function POST(req: NextRequest, props: Props) {
   const handler = async (adminAddress: Address) => {
     const { params } = await parseRequest(req, props, schemas);

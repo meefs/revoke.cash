@@ -3,19 +3,17 @@ import { recordAuditEvent } from '@revoke.cash/core/audit/events';
 import { createViemPublicClientForChain } from '@revoke.cash/core/chains';
 import { addressSchema, hexStringSchema } from '@revoke.cash/core/schemas';
 import {
-  destroySiweNonceCookieEdge,
-  getSiweNonceCookieEdge,
+  destroySiweNonceCookie,
+  getSiweNonceCookie,
   RateLimiters,
   requireRateLimit,
-  storeSessionEdge,
-  storeSiweWalletEdge,
+  storeSession,
+  storeSiweWallet,
 } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-
-export const runtime = 'edge';
 
 const schemas = {
   params: z.undefined(),
@@ -32,7 +30,7 @@ export async function POST(req: NextRequest) {
     const { body } = await parseRequest(req, undefined, schemas);
     const { message, address, signature } = body;
 
-    const nonce = await getSiweNonceCookieEdge(req);
+    const nonce = await getSiweNonceCookie(req);
     if (!nonce) {
       return NextResponse.json({ ok: false, message: 'SIWE nonce is missing or expired' }, { status: 401 });
     }
@@ -51,9 +49,9 @@ export async function POST(req: NextRequest) {
 
     const siwe = { address, verifiedAt: Date.now() };
     const res = NextResponse.json({ ok: true });
-    await storeSessionEdge(req, res, { siwe });
-    await storeSiweWalletEdge(req, res, siwe);
-    await destroySiweNonceCookieEdge(req, res);
+    await storeSession(req, res, { siwe });
+    await storeSiweWallet(req, res, siwe);
+    await destroySiweNonceCookie(req, res);
 
     await recordAuditEvent({ action: 'signed_in', actorAddress: address, details: {} });
 

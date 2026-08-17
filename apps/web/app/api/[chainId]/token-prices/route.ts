@@ -15,9 +15,6 @@ const schemas = {
   body: z.strictObject({ addresses: z.array(addressSchema) }),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function POST(req: NextRequest, props: Props) {
   try {
     await authorizeRequest(req, {

@@ -5,8 +5,6 @@ import { requireCronSecret } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
-
 // Runs three sequential phases, each with per-chain RPC calls; a slow RPC must not truncate the run
 export const maxDuration = 300;
 

@@ -15,9 +15,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 const CACHE_TTL = 1 * 60 * 20; // 20 minutes
 
 export async function GET(req: NextRequest, props: Props) {

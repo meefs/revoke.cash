@@ -2,7 +2,7 @@ import { isTestnetChain } from '@revoke.cash/core/chains';
 import { getDb } from '@revoke.cash/core/db/client';
 import { batchRevokes } from '@revoke.cash/core/db/schema/batch-revokes';
 import { addressSchema, supportedChainIdSchema, transactionHashSchema } from '@revoke.cash/core/schemas';
-import { authorizeRequest, getClientCountryEdge, RateLimiters } from 'lib/api/auth';
+import { authorizeRequest, getClientCountry, RateLimiters } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -22,9 +22,6 @@ const schemas = {
   }),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function POST(req: NextRequest, props: Props) {
   try {
     await authorizeRequest(req, {
@@ -40,7 +37,7 @@ export async function POST(req: NextRequest, props: Props) {
       userAddress: body.userAddress,
       feeUsdCents: body.feeUsdCents,
       isTestnet: isTestnetChain(params.chainId),
-      vatRegion: getClientCountryEdge(req),
+      vatRegion: getClientCountry(req),
       sponsor: body.sponsor,
       timestamp: new Date(),
     });

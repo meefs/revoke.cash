@@ -14,9 +14,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-// The on-chain check reads the DelegationManager contract through a viem public client
-export const runtime = 'nodejs';
-
 export async function GET(req: NextRequest, props: Props) {
   const handler = async () => {
     const { params } = await parseRequest(req, props, schemas);

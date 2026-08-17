@@ -14,8 +14,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const runtime = 'nodejs';
-
 export async function GET(req: NextRequest, props: Props) {
   try {
     const { siweAddress } = await authorizeRequest(req, {

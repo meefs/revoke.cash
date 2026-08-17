@@ -22,9 +22,6 @@ const STREAM_CONFIG = {
   batch_revokes: { title: 'Batch Revoke Fees', filePrefix: 'fees', fetchRecords: fetchBatchRevokeFeeRecords },
 } as const;
 
-// PDF rendering runs on the node runtime: pdfkit loads its font data from disk
-export const runtime = 'nodejs';
-
 export async function GET(req: NextRequest) {
   try {
     await authorizeRequest(req, { auth: 'siwe', requireAdmin: true, rateLimiter: RateLimiters.PREMIUM_READ });

@@ -15,8 +15,6 @@ const schemas = {
   body: z.undefined(),
 };
 
-export const runtime = 'nodejs';
-
 // For unfulfillable or abusive requests (e.g. the payment was reversed after a reorg, or the
 // user changed their mind via support); dismissed requests are terminal and free the payment
 // for a new request while it remains inside the refund window

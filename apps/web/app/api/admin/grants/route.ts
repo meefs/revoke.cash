@@ -18,9 +18,6 @@ const schemas = {
   }),
 };
 
-// Transactional path with advisory locks, so it runs on the node runtime like the rebuild route
-export const runtime = 'nodejs';
-
 export async function POST(req: NextRequest) {
   const handler = async (adminAddress: Address) => {
     const { body } = await parseRequest(req, undefined, schemas);

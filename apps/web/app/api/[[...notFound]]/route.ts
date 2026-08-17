@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 const handleUnmatchedApiRoute = () => NextResponse.json({ message: 'Not Found' }, { status: 404 });
 
 export const GET = handleUnmatchedApiRoute;

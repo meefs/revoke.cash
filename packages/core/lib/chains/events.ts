@@ -18,7 +18,7 @@ import { type Address, getAbiItem, type PublicClient, toEventSelector } from 'vi
 import { addThousandsSeparators } from '../utils/formatting';
 import { SECOND } from '../utils/time';
 
-// Note: ideally I would have included this in the 'Chain' class, but this causes circular dependency issues and issues with Edge runtime
+// Note: ideally I would have included this in the 'Chain' class, but this causes circular dependency issues
 // So we use this separate file instead to configure token event getting per chain.
 
 export interface TokenEventsResult {

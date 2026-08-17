@@ -12,9 +12,6 @@ const updateSchemas = {
   body: rulesDataBodySchema,
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function PUT(req: NextRequest) {
   try {
     const { siweAddress } = await authorizeRequest(req, {

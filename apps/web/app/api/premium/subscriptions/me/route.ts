@@ -6,9 +6,6 @@ import { parseRequest } from 'lib/api/validation';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 const schemas = {
   params: z.undefined(),
   body: z.undefined(),

@@ -10,9 +10,6 @@ const schemas = {
   query: z.object({ months: z.coerce.number().int().min(1).max(36).default(12) }),
 };
 
-export const runtime = 'edge';
-export const preferredRegion = ['iad1'];
-
 export async function GET(req: NextRequest) {
   const handler = async () => {
     const { query } = await parseRequest(req, undefined, schemas);
