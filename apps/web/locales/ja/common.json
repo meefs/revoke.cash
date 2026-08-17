@@ -1,11 +1,4 @@
 {
-  "announcements": {
-    "premium_launch": {
-      "learn_more": "詳しく見る",
-      "text": "<b>Revoke Premium & Ultimate</b>が登場：マルチチェーンダッシュボードと自動取り消し",
-      "view_pricing": "料金プランを見る"
-    }
-  },
   "article_meta": {
     "author": "著者：<person-link>{author}</person-link>",
     "reading_time": "読了時間：{readingTime}分",

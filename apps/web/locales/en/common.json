@@ -1,11 +1,4 @@
 {
-  "announcements": {
-    "premium_launch": {
-      "learn_more": "Learn More",
-      "text": "Introducing <b>Revoke Premium & Ultimate</b>: Multichain Dashboard & Automated Revoking",
-      "view_pricing": "View Pricing"
-    }
-  },
   "article_meta": {
     "author": "Written by <person-link>{author}</person-link>",
     "reading_time": "{readingTime} min read",

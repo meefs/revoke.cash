@@ -1,11 +1,4 @@
 {
-  "announcements": {
-    "premium_launch": {
-      "learn_more": "Подробнее",
-      "text": "Представляем <b>Revoke Premium & Ultimate</b>: мультичейн-панель и автоматический отзыв",
-      "view_pricing": "Посмотреть тарифы"
-    }
-  },
   "article_meta": {
     "author": "Автор <person-link>{author}</person-link>",
     "reading_time": "{readingTime} мин. чтения",

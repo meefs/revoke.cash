@@ -1,11 +1,4 @@
 {
-  "announcements": {
-    "premium_launch": {
-      "learn_more": "了解更多",
-      "text": "隆重推出 <b>Revoke Premium & Ultimate</b>：多链仪表盘与自动撤销",
-      "view_pricing": "查看定价"
-    }
-  },
   "article_meta": {
     "author": "作者：<person-link>{author}</person-link>",
     "reading_time": "{readingTime} 分钟阅读时间",

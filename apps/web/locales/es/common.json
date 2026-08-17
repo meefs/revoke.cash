@@ -1,11 +1,4 @@
 {
-  "announcements": {
-    "premium_launch": {
-      "learn_more": "Más información",
-      "text": "Te presentamos <b>Revoke Premium & Ultimate</b>: Panel de Control Multicadena y Revocación Automática",
-      "view_pricing": "Ver precios"
-    }
-  },
   "article_meta": {
     "author": "Escrito por <person-link>{author}</person-link>",
     "reading_time": "{readingTime} min de lectura",
