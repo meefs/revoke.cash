@@ -31,7 +31,12 @@ import {
   settleAction,
 } from '../actions';
 import { MAX_PENDING_ACTIONS_PER_CHAIN } from '../config';
-import { getPermissionById, type PermissionRecord } from '../permissions';
+import {
+  checkDelegatorAccountUpgraded,
+  getPermissionById,
+  markPermissionAccountUpgraded,
+  type PermissionRecord,
+} from '../permissions';
 import { checkActionCost, getNextBudgetRetryAt } from './budget';
 import { getReceiptL1DataFeeWei, getTransactionFees, ReplacementFeeCeilingError, type TransactionFees } from './fees';
 import {
@@ -172,12 +177,25 @@ const submitAction = async (action: Action, signers: ExecutorSigners): Promise<E
     const detail = parseErrorMessage(error);
 
     if (isRevertedError(error)) {
-      await markActionFailure(action.id, { status: 'failed', errorCode: 'execution_failed' });
+      const { chainId, address } = action.observation;
+      const accountUpgraded = await checkDelegatorAccountUpgraded(chainId, address).catch(() => true);
+      if (!accountUpgraded) {
+        await markPermissionAccountUpgraded(eligibility.permission.id, false);
+        await markActionFailure(action.id, {
+          status: 'blocked_permission',
+          errorCode: 'account_not_upgraded',
+          errorDetail: detail,
+        });
+        return { submitted: false, reason: 'account_not_upgraded', detail };
+      }
+
+      await markActionFailure(action.id, { status: 'failed', errorCode: 'execution_failed', errorDetail: detail });
       return { submitted: false, reason: 'execution_failed', detail };
     }
 
     await deferActionRetry(action.id, {
       errorCode: 'transient_error',
+      errorDetail: detail,
       nextRetryAt: new Date(Date.now() + TRANSIENT_ERROR_RETRY_DELAY_MS),
     });
     return { submitted: false, reason: 'transient_error', detail };

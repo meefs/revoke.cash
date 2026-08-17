@@ -68,6 +68,7 @@ export const columns = [
       <AutoRevokeActivityStatusBadge
         status={info.getValue()}
         errorCode={info.row.original.errorCode}
+        errorDetail={info.row.original.errorDetail}
         nextRetryAt={info.row.original.nextRetryAt}
         triggerType={info.row.original.triggerType}
       />

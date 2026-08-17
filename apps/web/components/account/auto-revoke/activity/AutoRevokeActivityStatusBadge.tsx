@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 interface Props {
   status: AutoRevokeActivityItem['status'];
   errorCode: AutoRevokeActivityItem['errorCode'];
+  errorDetail?: AutoRevokeActivityItem['errorDetail'];
   nextRetryAt: AutoRevokeActivityItem['nextRetryAt'];
   triggerType?: AutoRevokeActivityItem['triggerType'];
 }
@@ -21,7 +22,7 @@ const STATUS_STYLES: Record<AutoRevokeActivityItem['status'], { key: string; sta
   blocked_rules: { key: 'pending', status: 'warning' },
 };
 
-const AutoRevokeActivityStatusBadge = ({ status, errorCode, nextRetryAt, triggerType }: Props) => {
+const AutoRevokeActivityStatusBadge = ({ status, errorCode, errorDetail, nextRetryAt, triggerType }: Props) => {
   const t = useTranslations();
   const style = STATUS_STYLES[status];
   const label = (
@@ -33,7 +34,14 @@ const AutoRevokeActivityStatusBadge = ({ status, errorCode, nextRetryAt, trigger
   const reason = getTooltipReason(status, errorCode, nextRetryAt, triggerType);
   if (!reason) return label;
 
-  return <WithHoverTooltip tooltip={t(`account.auto_revoke.activity.reasons.${reason}`)}>{label}</WithHoverTooltip>;
+  const tooltip = (
+    <>
+      {t(`account.auto_revoke.activity.reasons.${reason}`)}
+      {status === 'failed' && errorDetail && <div className="mt-1 font-mono text-xs">{errorDetail}</div>}
+    </>
+  );
+
+  return <WithHoverTooltip tooltip={tooltip}>{label}</WithHoverTooltip>;
 };
 
 const getTooltipReason = (

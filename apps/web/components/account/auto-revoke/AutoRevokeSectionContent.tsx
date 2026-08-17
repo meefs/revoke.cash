@@ -45,12 +45,18 @@ const AutoRevokeSectionContent = ({
       ? t('account.auto_revoke.rules.managed_by', { owner: shortenAddress(addressRules.rulesSource.ownerAddress, 4) })
       : undefined;
 
-  const connectedWalletNeedsSetup = !permissions.some(
+  const connectedWalletPermissions = permissions.filter(
     (permission) => isAddressEqual(permission.address, account) && permission.isActive,
   );
+  const connectedWalletNeedsSetup = connectedWalletPermissions.length === 0;
+  const connectedWalletNeedsUpgrade = connectedWalletPermissions.some((permission) => !permission.accountUpgraded);
 
   return (
     <div className="flex flex-col gap-4">
+      {connectedWalletNeedsUpgrade && !isPreview && (
+        <NoticeBanner style="warning">{t('account.auto_revoke.permissions.account_not_upgraded_banner')}</NoticeBanner>
+      )}
+
       {connectedWalletNeedsSetup && supportsAutoRevoke && !isPreview && (
         <NoticeBanner
           style="info"

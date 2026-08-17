@@ -34,6 +34,7 @@ export interface AutoRevokeActivityItem {
   triggerType: Observation['triggerType'];
   status: ActionStatus;
   errorCode: ActionErrorCode | null;
+  errorDetail: string | null;
   nextRetryAt: string | null;
   costUsd: number | null;
   txHash: Hash | null;
@@ -48,6 +49,7 @@ export const getSubscriptionActivity = (subscriptionId: string): Promise<AutoRev
 };
 
 // We don't display activity that is not real or relevant, such as blocked_permission, blocked_rules and skipped.
+// account_not_upgraded parks are surfaced on the permissions list instead of the activity feed.
 const DISPLAYED_STATUSES: ActionStatus[] = ['queued', 'blocked_budget', 'submitted', 'succeeded', 'failed'];
 
 // SQL equivalent of the `date` resolution in mapActivityItem, so ordering follows the displayed date.
@@ -126,6 +128,7 @@ export const mapActivityItem = (action: Action, metadata: ChainMetadata | undefi
     triggerType: action.observation.triggerType,
     status: action.status,
     errorCode: action.errorCode,
+    errorDetail: action.errorDetail,
     nextRetryAt: action.nextRetryAt?.toISOString() ?? null,
     costUsd: action.costUsd,
     txHash: action.transaction?.txHash ?? null,

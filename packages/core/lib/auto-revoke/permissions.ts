@@ -19,6 +19,7 @@ import { scheduleEventsReindex } from '@revoke.cash/core/indexer/register';
 import { deduplicateArray } from '@revoke.cash/core/utils';
 import { filterAsync } from '@revoke.cash/core/utils/promises';
 import { SECOND } from '@revoke.cash/core/utils/time';
+import { getAccountType } from '@revoke.cash/core/wallet';
 import { and, eq, getTableColumns, gt, inArray, isNull, notInArray, sql } from 'drizzle-orm';
 import { type Address, type Hex, isAddressEqual, recoverTypedDataAddress } from 'viem';
 import { ApiError } from '../utils/errors';
@@ -29,6 +30,7 @@ export interface AutoRevokePermission {
   chainId: number;
   permissionContext: Hex;
   delegationManager: Address;
+  accountUpgraded: boolean;
   expiresAt: string;
   isActive: boolean;
 }
@@ -178,6 +180,57 @@ export const revokePermission = async (address: Address, chainId: number): Promi
   return { revokedCount: revokedRows.length };
 };
 
+// Note that existence of code does not prove the MetaMask implementation: a wallet delegated to another provider still fails at execution
+export const checkDelegatorAccountUpgraded = async (chainId: number, address: Address): Promise<boolean> => {
+  const publicClient = createViemPublicClientForChain(chainId);
+  const accountType = await getAccountType(address, publicClient);
+  return accountType !== 'eoa';
+};
+
+export const markPermissionAccountUpgraded = async (permissionId: string, accountUpgraded: boolean): Promise<void> => {
+  await getDb()
+    .update(autoRevokePermissions)
+    .set({ accountUpgraded })
+    .where(
+      and(eq(autoRevokePermissions.id, permissionId), eq(autoRevokePermissions.accountUpgraded, !accountUpgraded)),
+    );
+};
+
+// Recovery-only re-check used by evaluation: a permission flagged account_not_upgraded is re-read so
+// its parked actions can wake through unblockActions. A permission already marked upgraded costs
+// nothing here; a downgrade is discovered by the executor's revert path instead.
+export const recheckAccountUpgraded = async (address: Address, chainId: number): Promise<void> => {
+  const permission = await findActivePermission(address, chainId);
+  if (!permission || permission.accountUpgraded) return;
+  await syncAccountUpgraded(permission);
+};
+
+export const recheckAccountUpgradedForAddress = async (address: Address): Promise<void> => {
+  const permissions = await getDb().query.autoRevokePermissions.findMany({
+    where: and(
+      eq(autoRevokePermissions.address, address),
+      isNull(autoRevokePermissions.revokedAt),
+      gt(autoRevokePermissions.expiresAt, new Date()),
+    ),
+  });
+
+  // One chain's RPC failure must not block the other chains' re-checks.
+  await Promise.all(
+    permissions.map((permission) =>
+      syncAccountUpgraded(permission).catch((error) => {
+        console.error('Failed to check delegator account code, keeping stored value:', error);
+      }),
+    ),
+  );
+};
+
+const syncAccountUpgraded = async (permission: PermissionRecord): Promise<void> => {
+  const accountUpgraded = await checkDelegatorAccountUpgraded(permission.chainId, permission.address);
+  if (accountUpgraded !== permission.accountUpgraded) {
+    await markPermissionAccountUpgraded(permission.id, accountUpgraded);
+  }
+};
+
 export const markPermissionRevoked = async (permissionId: string): Promise<void> => {
   await getDb()
     .update(autoRevokePermissions)
@@ -297,12 +350,17 @@ const applyPermissionBatch = async (
         chainId: item.chainId,
         permissionContext: item.permissionContext,
         delegationManager: item.delegationManager,
+        accountUpgraded: item.accountUpgraded,
         expiresAt: new Date(item.expiresAt),
       })),
     )
     .onConflictDoUpdate({
       target: autoRevokePermissions.permissionContext,
-      set: { revokedAt: null, expiresAt: sql`excluded.expires_at` },
+      set: {
+        revokedAt: null,
+        expiresAt: sql`excluded.expires_at`,
+        accountUpgraded: sql`excluded.account_upgraded`,
+      },
     })
     .returning({
       id: autoRevokePermissions.id,
@@ -347,14 +405,26 @@ export const resolvePermissionRecord = async (
   }
 
   const expiresAt = extractExpiryFromCaveats(decodedPermission.caveats, input.chainId);
+  const accountUpgraded = await checkDelegatorAccountUpgradedAtGrant(input.chainId, authenticatedAddress);
 
   return {
     address: authenticatedAddress,
     chainId: input.chainId,
     permissionContext: input.permissionContext,
     delegationManager,
+    accountUpgraded,
     expiresAt,
   };
+};
+
+// The grant must not fail on an RPC hiccup: assume the wallet is upgraded and let the executor's revert discovery correct the flag.
+const checkDelegatorAccountUpgradedAtGrant = async (chainId: number, address: Address): Promise<boolean> => {
+  try {
+    return await checkDelegatorAccountUpgraded(chainId, address);
+  } catch (error) {
+    console.error('Failed to check delegator account code at grant time, assuming upgraded:', error);
+    return true;
+  }
 };
 
 // We want to extract the expiry from the on-chain permission context so we know it is valid.
@@ -377,6 +447,7 @@ const mapPermission = (row: PermissionRecord): AutoRevokePermission => ({
   chainId: row.chainId,
   permissionContext: row.permissionContext as Hex,
   delegationManager: row.delegationManager,
+  accountUpgraded: row.accountUpgraded,
   expiresAt: row.expiresAt.toISOString(),
   isActive: !row.revokedAt && row.expiresAt.getTime() > Date.now(),
 });

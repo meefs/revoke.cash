@@ -50,7 +50,7 @@ const AutoRevokePermissionRow = ({ address, connectedAddress, permissions }: Pro
         <AutoRevokeChainToggle
           key={chainId}
           chainId={chainId}
-          isGranted={activePermissions.some((permission) => permission.chainId === chainId)}
+          activePermission={activePermissions.find((permission) => permission.chainId === chainId)}
           isConnected={isConnected}
           isSupported={supportsAutoRevoke}
           isPending={isPending}

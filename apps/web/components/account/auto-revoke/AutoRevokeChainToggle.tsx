@@ -1,5 +1,7 @@
 'use client';
 
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import type { AutoRevokePermission } from '@revoke.cash/core/auto-revoke/permissions';
 import ChainDisplay from 'components/common/ChainDisplay';
 import Toggle from 'components/common/Toggle';
 import WithHoverTooltip from 'components/common/WithHoverTooltip';
@@ -7,7 +9,7 @@ import { useTranslations } from 'next-intl';
 
 interface Props {
   chainId: number;
-  isGranted: boolean;
+  activePermission?: AutoRevokePermission;
   isConnected: boolean;
   isSupported: boolean;
   isPending: boolean;
@@ -17,7 +19,7 @@ interface Props {
 
 const AutoRevokeChainToggle = ({
   chainId,
-  isGranted,
+  activePermission,
   isConnected,
   isSupported,
   isPending,
@@ -27,11 +29,12 @@ const AutoRevokeChainToggle = ({
   const t = useTranslations();
 
   const disabledTooltipKey = getDisabledTooltipKey(isConnected, isSupported);
+  const needsAccountUpgrade = activePermission ? !activePermission.accountUpgraded : false;
 
   const toggle = (
     <Toggle
       pending={isPendingForThisChain}
-      checked={isGranted}
+      checked={Boolean(activePermission)}
       onChange={onToggle}
       disabled={isPending || !isConnected || !isSupported}
       size="sm"
@@ -41,7 +44,16 @@ const AutoRevokeChainToggle = ({
   return (
     <div className="flex items-center justify-between gap-2 py-1.5 text-sm">
       <ChainDisplay chainId={chainId} logoSize={20} className="text-zinc-700 dark:text-zinc-300" />
-      {disabledTooltipKey ? <WithHoverTooltip tooltip={t(disabledTooltipKey)}>{toggle}</WithHoverTooltip> : toggle}
+      <div className="flex items-center gap-1.5">
+        {needsAccountUpgrade && (
+          <WithHoverTooltip tooltip={t('account.auto_revoke.permissions.account_not_upgraded')}>
+            <span>
+              <ExclamationCircleIcon className="h-5 w-5 text-yellow-500" />
+            </span>
+          </WithHoverTooltip>
+        )}
+        {disabledTooltipKey ? <WithHoverTooltip tooltip={t(disabledTooltipKey)}>{toggle}</WithHoverTooltip> : toggle}
+      </div>
     </div>
   );
 };

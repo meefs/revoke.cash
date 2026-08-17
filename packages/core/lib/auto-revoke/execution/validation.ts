@@ -28,6 +28,10 @@ export const checkExecutionEligibility = async (observation: Observation): Promi
     return { failure: { status: 'blocked_permission', errorCode: 'missing_permission' } };
   }
 
+  if (!permission.accountUpgraded) {
+    return { failure: { status: 'blocked_permission', errorCode: 'account_not_upgraded' } };
+  }
+
   if (!(await isPermissionEnabledOnChain(permission))) {
     await markPermissionRevoked(permission.id);
     return { failure: { status: 'blocked_permission', errorCode: 'permission_disabled' } };

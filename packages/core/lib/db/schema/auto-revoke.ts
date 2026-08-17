@@ -54,6 +54,7 @@ export const autoRevokePermissions = autoRevokeSchema.table(
     chainId: integer('chain_id').notNull(),
     permissionContext: text('permission_context').notNull().$type<Hex>(),
     delegationManager: lowercaseAddress('delegation_manager').notNull(),
+    accountUpgraded: boolean('account_upgraded').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -161,6 +162,7 @@ export const autoRevokeActions = autoRevokeSchema.table(
     transaction: autoRevokeTransaction('transaction'),
     costUsd: numeric('cost_usd', { mode: 'number' }),
     errorCode: text('error_code').$type<ActionErrorCode>(),
+    errorDetail: text('error_detail'),
     costDeferredAt: timestamp('cost_deferred_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true })

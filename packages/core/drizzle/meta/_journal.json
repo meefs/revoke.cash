@@ -106,6 +106,13 @@
       "when": 1785859925453,
       "tag": "0014_indexer_chain_updates",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1786827661375,
+      "tag": "0015_auto_revoke_error_detail_account_upgraded",
+      "breakpoints": true
     }
   ]
 }

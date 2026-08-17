@@ -99,6 +99,7 @@ export const columns = [
         <ActivityStatusCell
           status={info.getValue()}
           errorCode={info.row.original.errorCode}
+          errorDetail={info.row.original.errorDetail}
           nextRetryAt={info.row.original.nextRetryAt}
         />
       </div>
@@ -107,11 +108,21 @@ export const columns = [
   columnHelper.accessor('errorCode', {
     id: 'error',
     header: 'Error',
-    cell: (info) => (
-      <div className={cellClasses}>
+    cell: (info) => {
+      const errorCode = (
         <span className="font-mono text-xs text-zinc-600 dark:text-zinc-400">{info.getValue() ?? '-'}</span>
-      </div>
-    ),
+      );
+
+      return (
+        <div className={cellClasses}>
+          {info.row.original.errorDetail ? (
+            <WithHoverTooltip tooltip={info.row.original.errorDetail}>{errorCode}</WithHoverTooltip>
+          ) : (
+            errorCode
+          )}
+        </div>
+      );
+    },
   }),
   columnHelper.accessor('lane', {
     id: 'lane',

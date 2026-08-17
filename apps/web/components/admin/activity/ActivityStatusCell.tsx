@@ -10,12 +10,20 @@ const USER_FACING_STATUSES: readonly ActionStatus[] = ['queued', 'blocked_budget
 interface Props {
   status: AdminActivityItem['status'];
   errorCode: AdminActivityItem['errorCode'];
+  errorDetail: AdminActivityItem['errorDetail'];
   nextRetryAt: AdminActivityItem['nextRetryAt'];
 }
 
-const ActivityStatusCell = ({ status, errorCode, nextRetryAt }: Props) => {
+const ActivityStatusCell = ({ status, errorCode, errorDetail, nextRetryAt }: Props) => {
   if (USER_FACING_STATUSES.includes(status)) {
-    return <AutoRevokeActivityStatusBadge status={status} errorCode={errorCode} nextRetryAt={nextRetryAt} />;
+    return (
+      <AutoRevokeActivityStatusBadge
+        status={status}
+        errorCode={errorCode}
+        errorDetail={errorDetail}
+        nextRetryAt={nextRetryAt}
+      />
+    );
   }
 
   return (

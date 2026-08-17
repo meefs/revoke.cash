@@ -1,6 +1,7 @@
 import { recordAuditEvent } from '@revoke.cash/core/audit/events';
 import {
   getPermissionsByAddress,
+  recheckAccountUpgradedForAddress,
   resolvePermissionRecord,
   savePermission,
 } from '@revoke.cash/core/auto-revoke/permissions';
@@ -8,7 +9,7 @@ import { grantPermissionBodySchema } from 'app/api/auto-revoke/schemas';
 import { authorizeRequest, RateLimiters } from 'lib/api/auth';
 import { handleApiRouteError } from 'lib/api/errors';
 import { parseRequest } from 'lib/api/validation';
-import { type NextRequest, NextResponse } from 'next/server';
+import { after, type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const readSchemas = {
@@ -31,6 +32,15 @@ export async function GET(req: NextRequest) {
       rateLimiter: RateLimiters.PREMIUM_READ,
     });
     await parseRequest(req, undefined, readSchemas);
+
+    // Off the critical path: re-check the wallet's smart account code after responding, so a
+    // permission flagged account_not_upgraded recovers when the user upgraded and comes back.
+    after(() =>
+      recheckAccountUpgradedForAddress(siweAddress).catch((error) => {
+        console.error('Failed to re-check delegator account code:', error);
+      }),
+    );
+
     const permissions = await getPermissionsByAddress(siweAddress);
     return NextResponse.json(permissions);
   } catch (error) {
