@@ -29,9 +29,9 @@ const AutoRevokePermissionRow = ({ address, connectedAddress, permissions }: Pro
 
   const { grantPermission, isGranting, pendingChainId: grantingChainId } = useGrantAutoRevokePermission();
   const { revokePermission, isRevoking, pendingChainId: revokingChainId } = useRevokeAutoRevokePermission();
-  const { syncPermissions, isSyncing, supportsAutoRevoke } = useSyncAutoRevokePermissions();
+  const { syncPermissions, isSyncing, supportsAutoRevoke, isLoadingSupport } = useSyncAutoRevokePermissions();
 
-  const isPending = isGranting || isRevoking || isSyncing;
+  const isPending = isGranting || isRevoking || isSyncing || isLoadingSupport;
   const pendingChainId = grantingChainId ?? revokingChainId;
 
   const handleToggleChain = (chainId: number, enable: boolean) => {

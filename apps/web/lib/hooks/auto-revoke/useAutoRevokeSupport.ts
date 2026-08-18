@@ -2,6 +2,7 @@
 
 import { isNullish } from '@revoke.cash/core/utils';
 import { useAccountCapabilities } from 'lib/hooks/ethereum/useAccountCapabilities';
+import type { Capabilities } from 'viem';
 import { useErc7715Support } from './useErc7715Support';
 
 export type AutoRevokeSupportStatus = 'supported' | 'unsupported_wallet' | 'unsupported_account';
@@ -13,13 +14,21 @@ export const useAutoRevokeSupport = () => {
   const { capabilities, isLoading: isLoadingCapabilities } = useAccountCapabilities();
 
   // We don't want to be *too* restrictive, so if for some reason capabilities is null, we assume it's supported
-  const supportsSmartAccount = isNullish(capabilities) || Object.keys(capabilities).length > 0;
+  const supportsSmartAccount = isNullish(capabilities) || supportsAtomicBatchOnAnyChain(capabilities);
 
   return {
     supportsAutoRevoke: supportsErc7715 && supportsSmartAccount,
     supportStatus: getSupportStatus(supportsErc7715, supportsSmartAccount),
     isLoading: isLoadingErc7715Support || isLoadingCapabilities,
   };
+};
+
+// The "atomic" capability is the one MetaMask withholds for accounts that cannot upgrade (e.g. hardware walletaccounts)
+const supportsAtomicBatchOnAnyChain = (capabilities: Capabilities): boolean => {
+  return Object.values(capabilities).some((chainCapabilities) => {
+    const atomicStatus = chainCapabilities?.atomic?.status;
+    return atomicStatus === 'supported' || atomicStatus === 'ready';
+  });
 };
 
 const getSupportStatus = (supportsErc7715: boolean, supportsSmartAccount: boolean): AutoRevokeSupportStatus => {

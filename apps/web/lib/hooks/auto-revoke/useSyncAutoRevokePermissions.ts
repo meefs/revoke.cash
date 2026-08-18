@@ -14,7 +14,7 @@ import { getSupportErrorKey, useAutoRevokeSupport } from './useAutoRevokeSupport
 export const useSyncAutoRevokePermissions = () => {
   const t = useTranslations();
   const { data: connectorClient } = useConnectorClient();
-  const { supportsAutoRevoke, supportStatus } = useAutoRevokeSupport();
+  const { supportsAutoRevoke, supportStatus, isLoading: isLoadingSupport } = useAutoRevokeSupport();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -56,5 +56,6 @@ export const useSyncAutoRevokePermissions = () => {
     syncPermissions: () => mutation.mutateAsync().catch(() => []),
     isSyncing: mutation.isPending,
     supportsAutoRevoke,
+    isLoadingSupport,
   };
 };

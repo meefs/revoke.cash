@@ -12,12 +12,14 @@ import { getSupportErrorKey, useAutoRevokeSupport } from './useAutoRevokeSupport
 export const useGrantAutoRevokePermission = () => {
   const t = useTranslations();
   const { data: connectorClient } = useConnectorClient();
-  const { supportsAutoRevoke, supportStatus } = useAutoRevokeSupport();
+  const { supportsAutoRevoke, supportStatus, isLoading: isLoadingSupport } = useAutoRevokeSupport();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (chainId: number) => {
-      if (!connectorClient || !supportsAutoRevoke) throw new Error(t(getSupportErrorKey(supportStatus)));
+      if (!connectorClient || isLoadingSupport || !supportsAutoRevoke) {
+        throw new Error(t(getSupportErrorKey(supportStatus)));
+      }
       if (!isAutoRevokeSupportedChain(chainId)) throw new Error('Unsupported chain');
 
       const walletClient = connectorClient.extend(erc7715ProviderActions());
